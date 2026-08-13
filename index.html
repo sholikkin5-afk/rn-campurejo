@@ -78,22 +78,20 @@ fetch(API_URL)
   }
   let html = "";
   data.reverse().forEach(a => {
-    // BEN GAMBAR GAK ZONK: lek kosong nganggo placeholder
-    const gambarUrl = a.gambar || 'https://via.placeholder.com/400x250/1e3a8a/FFFFFF?text=Desa+Campurjo';
-
-    html += `
-    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition duration-300">
-      <img src="${gambarUrl}"
-           class="w-full h-48 object-cover bg-gray-200"
-           onerror="this.src='https://via.placeholder.com/400x250/dc2626/FFFFFF?text=Gambar+Error'">
-      <div class="p-5">
-        <p class="text-xs text-gray-500 mb-1">${formatTanggal(a.tanggal)}</p>
-        <h3 class="font-bold text-lg text-gray-900 mb-2">${a.judul}</h3>
-        <p class="text-gray-700 text-sm line-clamp-3">${a.isi}</p>
-      </div>
+  const gambarUrl = a.gambar || 'https://via.placeholder.com/400x250/1e3a8a/FFFFFF?text=Desa+Campurjo';
+  html += `
+  <div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <img src="${gambarUrl}" 
+         referrerpolicy="no-referrer"
+         class="w-full h-48 object-cover bg-gray-200">
+    <div class="p-5">
+      <p class="text-xs text-gray-500 mb-1">${formatTanggal(a.tanggal)}</p>
+      <h3 class="font-bold text-lg">${a.judul}</h3>
+      <p class="text-gray-700 text-sm">${a.isi}</p>
     </div>
-    `;
-  });
+  </div>
+  `;
+});
   document.getElementById("artikelList").innerHTML = html;
 }).catch(err => {
   document.getElementById("artikelList").innerHTML = "<p class='text-center col-span-full text-red-500'>Gagal memuat data. Cek internet.</p>";
