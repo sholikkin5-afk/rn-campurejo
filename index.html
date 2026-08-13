@@ -3,143 +3,227 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Desa Campurjo - Gresik</title>
+<title>Rukun Nelayan Putra Pantai Utara - Desa Campurjo</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<style>.line-clamp-3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}</style>
 </head>
-<body class="bg-gray-50 scroll-smooth">
+<body class="bg-red-50 font-sans scroll-smooth">
 
-<!-- NAVBAR -->
-<nav class="bg-white shadow-md sticky top-0 z-20">
-  <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-    <div class="font-bold text-red-700 text-lg">Desa Campurjo</div>
-    <div class="hidden md:flex gap-6 text-sm font-semibold text-gray-700">
-      <a href="#beranda" class="hover:text-red-600">Beranda</a>
-      <a href="#profil" class="hover:text-red-600">Profil</a>
-      <a href="#berita" class="hover:text-red-600">Berita</a>
-      <a href="#struktur" class="hover:text-red-600">Struktur</a>
-      <a href="#kontak" class="hover:text-red-600">Kontak</a>
+<!-- HEADER BIRU + LOGO LOKAL -->
+<header class="bg-gradient-to-r from-blue-700 to-blue-900 text-white p-6 shadow-lg sticky top-0 z-10">
+  <div class="container mx-auto flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <img src="logo-rn.jpg" class="w-12 h-12 bg-white p-1 rounded-lg">
+      <div>
+        <h1 class="text-2xl font-extrabold">RNPPU Desa Campurjo</h1>
+        <p class="text-xs opacity-90">Kecamatan Gresik, Kabupaten Gresik</p>
+      </div>
     </div>
+    <nav class="hidden md:flex gap-4 text-sm font-semibold">
+      <a href="#profil" class="hover:text-yellow-300">Profil</a>
+      <a href="#berita" class="hover:text-yellow-300">Berita</a>
+      <a href="#struktur" class="hover:text-yellow-300">Anggota</a>
+      <a href="#kontak" class="hover:text-yellow-300">Kontak</a>
+    </nav>
   </div>
-</nav>
+  <div class="text-center mt-3 bg-yellow-400 text-blue-900 text-xs font-bold px-3 py-1 rounded-full inline-block">BADAN HUKUM: AHU-0002915.AH.01.07.TAHUN 2026</div>
+</header>
 
-<!-- HERO / BERANDA -->
-<section id="beranda" class="bg-gradient-to-r from-red-600 to-red-800 text-white text-center py-20 px-4">
-  <img src="https://via.placeholder.com/120x120/FFFFFF/dc2626?text=LOGO" class="w-24 h-24 mx-auto mb-4 bg-white p-2 rounded-full">
-  <h1 class="text-4xl md:text-5xl font-extrabold">Desa Campurjo</h1>
-  <p class="mt-3 text-lg opacity-90">Kecamatan Gresik, Kabupaten Gresik, Jawa Timur</p>
-  <div class="mt-4 bg-white text-red-700 text-sm font-bold px-4 py-2 rounded-full inline-block">HUT RI KE-81 🇮🇩</div>
-</section>
+<main class="container mx-auto p-4 md:p-6">
 
-<!-- PROFIL -->
-<section id="profil" class="container mx-auto p-8 md:p-12">
-  <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">Tentang Desa Campurjo</h2>
-  <div class="grid md:grid-cols-2 gap-8 items-center">
-    <img src="https://via.placeholder.com/600x400/dc2626/FFFFFF?text=Kantor+Desa" class="rounded-2xl shadow-lg">
-    <div>
-      <p class="text-gray-700 mb-4">Desa Campurjo merupakan salah satu desa di Kecamatan Gresik yang memiliki potensi besar di bidang pertanian, perikanan, dan UMKM. Dengan semangat gotong royong, warga bersama-sama membangun desa yang maju dan sejahtera.</p>
-      <p class="text-gray-700"><b>Visi:</b> "Terwujudnya Desa Campurjo yang Mandiri, Sejahtera, dan Berakhlak"</p>
-      <p class="text-gray-700"><b>Misi:</b> Meningkatkan pelayanan publik, pemberdayaan masyarakat, dan pembangunan infrastruktur.</p>
+  <!-- 1. TENTANG KAMI - FITUR LAMA AMAN -->
+  <section id="profil" class="mb-12 bg-white p-6 rounded-2xl shadow-lg border-t-4 border-blue-700">
+    <h2 class="text-2xl font-bold mb-4 text-center text-blue-800">Tentang RNPPU</h2>
+    <div id="tentangKami" class="text-gray-700">
+      <p>Memuat data...</p>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- BERITA -->
-<section id="berita" class="bg-red-50 py-12">
-  <div class="container mx-auto px-4">
-    <h2 class="text-3xl font-bold mb-8 text-center text-gray-800">📢 Berita & Kegiatan</h2>
-    <div id="artikelList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <!-- 2. BERITA & KEGIATAN - FITUR LAMA AMAN -->
+  <section id="berita">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">📢 Berita & Kegiatan Terbaru</h2>
+    <div id="artikelList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <p class="text-center col-span-full text-gray-500">Memuat artikel...</p>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- STRUKTUR -->
-<section id="struktur" class="container mx-auto p-8 md:p-12">
-  <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">Struktur Pemerintahan Desa</h2>
-  <div id="strukturList" class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-    <p class="col-span-full text-gray-500">Memuat data anggota...</p>
-  </div>
-</section>
+  <!-- 3. DATA ANGGOTA + TOMBOL KULON BARAT - FITUR LAMA AMAN -->
+  <section id="struktur" class="mt-12 bg-white p-6 rounded-2xl shadow-lg border-t-4 border-yellow-500">
+    <h2 class="text-2xl font-bold mb-4 text-center text-blue-800">Data Anggota RNPPU</h2>
+    <div class="flex justify-center gap-4 mb-6">
+      <button id="btnKulon" onclick="tampilAnggota('Belandongan Kulon')" class="px-5 py-2 rounded-lg font-bold bg-blue-700 text-white shadow">Belandongan Kulon</button>
+      <button id="btnBarat" onclick="tampilAnggota('Belandongan Barat')" class="px-5 py-2 rounded-lg font-bold bg-gray-300 text-gray-700">Belandongan Barat</button>
+    </div>
+    <div id="strukturList" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <p class="text-center col-span-full text-gray-500">Memuat data anggota...</p>
+    </div>
+  </section>
 
-<!-- KONTAK -->
-<section id="kontak" class="bg-gray-900 text-white py-12">
-  <div class="container mx-auto px-4 grid md:grid-cols-3 gap-8 text-sm">
-    <div>
-      <h4 class="font-bold text-lg mb-3">Alamat</h4>
-      <p>Kantor Desa Campurjo<br>Kec. Gresik, Kab. Gresik<br>Jawa Timur 61111</p>
-    </div>
-    <div>
-      <h4 class="font-bold text-lg mb-3">Kontak</h4>
-      <p>WA: 08xx-xxxx-xxxx<br>Email: desacampurjo@gmail.com</p>
-    </div>
-    <div>
-      <h4 class="font-bold text-lg mb-3">Jam Pelayanan</h4>
-      <p>Senin - Jumat<br>08.00 - 15.00 WIB</p>
-    </div>
-  </div>
-  <div class="text-center pt-8 text-xs opacity-70">© 2026 Desa Campurjo. Dibuat dengan ❤️</div>
-</section>
+</main>
 
-<!-- MODAL BERITA -->
-<div id="modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-30 items-center justify-center p-4">
-  <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-    <div class="p-6">
-      <button onclick="tutupModal()" class="float-right text-gray-500 text-3xl font-bold">&times;</button>
-      <img id="modalGambar" class="w-full h-72 object-cover rounded-lg mb-4">
+<!-- MODAL FULL SCREEN + LIKE + KOMENTAR + SHARE WA -->
+<div id="modal" class="fixed inset-0 bg-black bg-opacity-90 hidden z-30 flex-col">
+  <div class="bg-blue-900 text-white p-3 flex justify-between items-center sticky top-0">
+    <button onclick="prevArtikel()" class="px-3 py-1 bg-white text-blue-900 rounded font-bold hover:bg-yellow-300">← Prev</button>
+    <p class="font-bold text-sm">Detail Berita</p>
+    <button onclick="tutupModal()" class="text-white text-3xl font-bold">&times;</button>
+  </div>
+  <div class="flex-1 overflow-y-auto bg-white">
+    <div class="max-w-4xl mx-auto p-4 md:p-8">
+      <img id="modalGambar" class="w-full max-h-[60vh] object-contain rounded-lg mb-4 bg-gray-100">
       <p id="modalTanggal" class="text-xs text-gray-500 mb-2"></p>
-      <h3 id="modalJudul" class="font-bold text-2xl mb-3 text-red-800"></h3>
-      <p id="modalIsi" class="text-gray-700 whitespace-pre-line"></p>
+      <h3 id="modalJudul" class="font-bold text-3xl mb-4 text-blue-800"></h3>
+      <p id="modalIsi" class="text-gray-700 text-lg leading-relaxed whitespace-pre-line mb-6"></p>
+
+      <!-- BARIS TOMBOL AKSI -->
+      <div class="border-t border-gray-200 pt-4 flex flex-wrap gap-3 items-center">
+        <button onclick="kirimLike('like')" class="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg font-bold hover:bg-green-200">👍 <span id="jmlLike">0</span></button>
+        <button onclick="kirimLike('dislike')" class="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg font-bold hover:bg-red-200">👎 <span id="jmlDislike">0</span></button>
+        <button onclick="shareWA()" class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg font-bold hover:bg-green-600">📲 Share WA</button>
+      </div>
+
+      <!-- FITUR KOMENTAR -->
+      <div class="border-t border-gray-200 pt-4 mt-4">
+        <h4 class="font-bold text-xl mb-3">💬 Komentar (<span id="jmlKomentar">0</span>)</h4>
+        <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+          <input id="namaKomentar" type="text" placeholder="Nama Anda" class="w-full p-2 border rounded mb-2">
+          <textarea id="isiKomentar" placeholder="Tulis komentar..." class="w-full p-2 border rounded mb-2"></textarea>
+          <button onclick="kirimKomentar()" class="px-4 py-2 bg-blue-700 text-white rounded font-bold">Kirim Komentar</button>
+        </div>
+        <div id="listKomentar" class="space-y-3">
+          <p class="text-gray-500">Belum ada komentar.</p>
+        </div>
+      </div>
+
     </div>
+  </div>
+  <div class="bg-blue-900 text-white p-3 flex justify-between items-center">
+    <button onclick="prevArtikel()" class="px-4 py-2 bg-white text-blue-900 rounded font-bold hover:bg-yellow-300">← Artikel Sebelumnya</button>
+    <button onclick="nextArtikel()" class="px-4 py-2 bg-white text-blue-900 rounded font-bold hover:bg-yellow-300">Artikel Berikutnya →</button>
   </div>
 </div>
+
+<!-- FOOTER -->
+<footer id="kontak" class="bg-gray-800 text-white text-center p-6 mt-8">
+  <p class="font-bold">Sekretariat: Desa Campurjo, Kec. Gresik</p>
+  <p class="text-sm mt-1">WA: 08xx-xxxx-xxxx | Email: rnppucampurjo@gmail.com</p>
+  <p class="text-xs mt-3 opacity-70">© 2026 RNPPU Desa Campurjo. "Bersama Membangun Desa"</p>
+</footer>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyGdXCycqcKlHug5eMYkKZEr7jTztTTYeKkpIB1egKDqexg_lL6BWjwLqTsvBx8-3MTTA/exec";
 let dataArtikel = [];
+let semuaAnggota = [];
+let artikelIndexSekarang = 0;
 
-function formatTanggal(tgl){
-  if(!tgl) return "";
-  return new Date(tgl).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+function formatTanggal(tgl){ if(!tgl) return ""; return new Date(tgl).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) }
+
+function loadLikeKomentar(judul){
+  google.script.run.withSuccessHandler(data => {
+    document.getElementById("jmlLike").innerText = data.likes;
+    document.getElementById("jmlDislike").innerText = data.dislikes;
+    document.getElementById("jmlKomentar").innerText = data.komentar.length;
+    let htmlKom = "";
+    if(data.komentar.length == 0) htmlKom = "<p class='text-gray-500'>Belum ada komentar.</p>";
+    else data.komentar.forEach(k => {
+      htmlKom += `<div class="bg-gray-100 p-3 rounded-lg"><p class="font-bold text-sm">${k.nama} <span class="font-normal text-xs text-gray-500">${formatTanggal(k.tanggal)}</span></p><p class="text-sm">${k.isi}</p></div>`;
+    });
+    document.getElementById("listKomentar").innerHTML = htmlKom;
+  }).getLikeKomentar(judul);
 }
-function bukaModal(index){
+
+function kirimLike(tipe){
+  const judul = dataArtikel[artikelIndexSekarang].judul;
+  fetch(API_URL, {method: 'POST', body: JSON.stringify({action: "addLike", judul: judul, tipe: tipe})})
+.then(() => loadLikeKomentar(judul));
+}
+
+function kirimKomentar(){
+  const nama = document.getElementById("namaKomentar").value;
+  const isi = document.getElementById("isiKomentar").value;
+  if(nama == "" || isi == "") return alert("Nama dan komentar wajib diisi jo");
+  const judul = dataArtikel[artikelIndexSekarang].judul;
+  fetch(API_URL, {method: 'POST', body: JSON.stringify({action: "addKomentar", judul: judul, nama: nama, komentar: isi})})
+.then(() => {
+    document.getElementById("namaKomentar").value = "";
+    document.getElementById("isiKomentar").value = "";
+    loadLikeKomentar(judul);
+  });
+}
+
+function shareWA(){
+  const a = dataArtikel[artikelIndexSekarang];
+  const urlWebsite = window.location.href;
+  const pesan = `*${a.judul}*\n\n${a.isi.substring(0,150)}...\n\nBaca selengkapnya: ${urlWebsite}`;
+  const linkWA = `https://wa.me/?text=${encodeURIComponent(pesan)}`;
+  window.open(linkWA, '_blank');
+}
+
+function tampilkanIsiModal(index){
+  artikelIndexSekarang = index;
   const a = dataArtikel[index];
-  document.getElementById("modalGambar").src = a.gambar? `https://drive.google.com/thumbnail?id=${a.gambar.split('id=')[1]}&sz=w1000` : '';
+  document.getElementById("modalGambar").src = a.gambar? `https://drive.google.com/thumbnail?id=${a.gambar.split('id=')[1]}&sz=w1000` : 'https://via.placeholder.com/1200x600/1e40af/FFFFFF?text=RNPPU';
   document.getElementById("modalTanggal").innerText = "📅 " + formatTanggal(a.tanggal);
   document.getElementById("modalJudul").innerText = a.judul;
   document.getElementById("modalIsi").innerText = a.isi;
-  document.getElementById("modal").classList.remove("hidden"); document.getElementById("modal").classList.add("flex");
+  loadLikeKomentar(a.judul);
 }
-function tutupModal(){ document.getElementById("modal").classList.add("hidden"); document.getElementById("modal").classList.remove("flex"); }
+function bukaModal(index){ tampilkanIsiModal(index); document.getElementById("modal").classList.remove("hidden"); document.getElementById("modal").classList.add("flex"); document.body.style.overflow = 'hidden'; }
+function tutupModal(){ document.getElementById("modal").classList.add("hidden"); document.getElementById("modal").classList.remove("flex"); document.body.style.overflow = 'auto'; }
+function nextArtikel(){ if(artikelIndexSekarang < dataArtikel.length - 1){ tampilkanIsiModal(artikelIndexSekarang + 1); } else {alert("Iki wes artikel terakhir jo")} }
+function prevArtikel(){ if(artikelIndexSekarang > 0){ tampilkanIsiModal(artikelIndexSekarang - 1); } else {alert("Iki wes artikel pertama jo")} }
 
-// LOAD BERITA
+// FITUR LAMA AMAN
+function tampilAnggota(wilayah){
+  document.getElementById("btnKulon").className = "px-5 py-2 rounded-lg font-bold bg-gray-300 text-gray-700";
+  document.getElementById("btnBarat").className = "px-5 py-2 rounded-lg font-bold bg-gray-300 text-gray-700";
+  if(wilayah == "Belandongan Kulon") document.getElementById("btnKulon").className = "px-5 py-2 rounded-lg font-bold bg-blue-700 text-white shadow";
+  if(wilayah == "Belandongan Barat") document.getElementById("btnBarat").className = "px-5 py-2 rounded-lg font-bold bg-blue-700 text-white shadow";
+
+  const dataFilter = semuaAnggota.filter(a => a.wilayah == wilayah);
+  let html = "";
+  if(dataFilter.length == 0){
+    html = `<p class='text-center col-span-full text-gray-500'>Belum ada data anggota untuk ${wilayah}</p>`;
+  } else {
+    dataFilter.forEach(a => {
+      html += `<div class="bg-red-50 p-4 rounded-xl border border-red-100 text-center">
+        <div class="w-16 h-16 bg-blue-100 rounded-full mx-auto mb-2 flex items-center justify-center text-blue-800 font-bold text-xl">${a.nama.charAt(0)}</div>
+        <p class="font-bold text-gray-800">${a.nama}</p>
+        <p class="text-xs text-blue-700">📍 ${a.alamat}</p>
+        <p class="text-xs text-gray-500">🚤 ${a.kapal || '-'}</p>
+      </div>`;
+    });
+  }
+  document.getElementById("strukturList").innerHTML = html;
+}
+
+function loadTentangWeb(){
+  fetch(API_URL + "?action=getTentang")
+.then(res => res.json())
+.then(d => {
+    if(d.length > 0){
+      const t = d[0];
+      document.getElementById("tentangKami").innerHTML = `
+        <p class="mb-3">${t.tentang}</p>
+        <p><b>Visi:</b> "${t.visi}"</p>
+        <p><b>Misi:</b> ${t.misi}</p>
+      `;
+    }
+  });
+}
+
 fetch(API_URL).then(res => res.json()).then(data => {
   dataArtikel = data.filter(d => d.action!= "addAnggota").reverse();
   let html = "";
   dataArtikel.forEach((a, index) => {
     const idFoto = a.gambar? a.gambar.split('id=')[1] : '';
-    const gambarUrl = idFoto? `https://drive.google.com/thumbnail?id=${idFoto}&sz=w800` : 'https://via.placeholder.com/800x450/dc2626/FFFFFF?text=Desa+Campurjo';
-    html += `<div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition">
-      <img src="${gambarUrl}" loading="lazy" class="w-full h-48 object-cover">
-      <div class="p-5"><p class="text-xs text-gray-500 mb-2">📅 ${formatTanggal(a.tanggal)}</p>
-      <h3 class="font-bold text-lg mb-2 text-red-800 line-clamp-2">${a.judul}</h3>
-      <p class="text-gray-700 text-sm line-clamp-3">${a.isi}</p>
-      <button onclick="bukaModal(${index})" class="mt-4 text-red-600 font-semibold text-sm hover:underline">Baca Selengkapnya →</button></div></div>`;
+    const gambarUrl = idFoto? `https://drive.google.com/thumbnail?id=${idFoto}&sz=w800` : 'https://via.placeholder.com/800x400/1e40af/FFFFFF?text=RNPPU';
+    html += `<div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-blue-100 hover:scale-[1.02] transition duration-300"><img src="${gambarUrl}" loading="lazy" class="w-full h-56 object-cover"><div class="p-5"><p class="text-xs text-gray-500 mb-2">📅 ${formatTanggal(a.tanggal)}</p><h3 class="font-bold text-xl mb-2 text-blue-800">${a.judul}</h3><p class="text-gray-700 text-sm line-clamp-3">${a.isi}</p><button onclick="bukaModal(${index})" class="mt-4 text-blue-600 font-semibold text-sm hover:underline">Baca Selengkapnya →</button></div></div>`;
   });
   document.getElementById("artikelList").innerHTML = html;
-
-  // LOAD STRUKTUR DARI SHEET "Anggota"
-  const dataAnggota = data.filter(d => d.action == "addAnggota").reverse();
-  let htmlStruktur = "";
-  dataAnggota.forEach(a => {
-    htmlStruktur += `<div class="bg-white p-4 rounded-xl shadow">
-      <div class="w-20 h-20 bg-red-100 rounded-full mx-auto mb-2 flex items-center justify-center text-red-700 font-bold text-2xl">${a.nama.charAt(0)}</div>
-      <p class="font-bold text-gray-800">${a.nama}</p>
-      <p class="text-sm text-red-600">${a.jabatan}</p>
-      <p class="text-xs text-gray-500">${a.kapal}</p>
-    </div>`;
-  });
-  if(htmlStruktur!= "") document.getElementById("strukturList").innerHTML = htmlStruktur;
+  semuaAnggota = data.filter(d => d.action == "addAnggota"); tampilAnggota('Belandongan Kulon');
 });
+loadTentangWeb();
 </script>
 </body>
 </html>
