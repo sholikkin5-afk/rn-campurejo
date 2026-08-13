@@ -31,7 +31,6 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyGdXCycqcKlHug5eMYkKZEr7jTztTTYeKkpIB1egKDqexg_lL6BWjwLqTsvBx8-3MTTA/exec";
 
-// FUNGSI BUAT NGGANTI TANGGAL DADI BAHASA INDONESIA
 function formatTanggal(tgl){
   if(!tgl) return "";
   const options = { day: 'numeric', month: 'long', year: 'numeric' };
@@ -47,12 +46,14 @@ fetch(API_URL)
   }
   let html = "";
   data.reverse().forEach(a => {
-  const gambarUrl = a.gambar || 'https://via.placeholder.com/400x250/1e3a8a/FFFFFF?text=Desa+Campurjo';
+  // KUNCI NE NENG KENE: GANTI LINK E DADI THUMBNAIL
+  const idFoto = a.gambar? a.gambar.split('id=')[1] : '';
+  const gambarUrl = idFoto? `https://drive.google.com/thumbnail?id=${idFoto}&sz=w400` : 'https://via.placeholder.com/400x250/1e3a8a/FFFFFF?text=Desa+Campurjo';
+
   html += `
   <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
-    <img src="${gambarUrl}" 
+    <img src="${gambarUrl}"
          loading="lazy"
-         onerror="this.src='https://via.placeholder.com/400x250/1e3a8a/FFFFFF?text=Gagal+Load'"
          class="w-full h-48 object-cover bg-gray-200">
     <div class="p-5">
       <p class="text-xs text-gray-500 mb-1">${formatTanggal(a.tanggal)}</p>
@@ -68,6 +69,5 @@ fetch(API_URL)
   console.log(err)
 });
 </script>
-
 </body>
 </html>
