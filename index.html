@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><title>RN Putra Pantai Utara</title>
+<style>body{font-family:Arial;margin:0;background:#f0f8ff}header{background:#004080;color:white;padding:20px;text-align:center}.container{max-width:1000px;margin:20px auto;padding:20px;background:white;border-radius:8px}table{width:100%;border-collapse:collapse}th{background:#004080;color:white}td,th{border:1px solid #ddd;padding:8px}</style>
+</head><body>
+<header><h1>RUKUN NELAYAN PUTRA PANTAI UTARA</h1></header>
+<div class="container"><h2>Kegiatan</h2><div id="listArtikel">Loading...</div></div>
+<div class="container"><h2>Data Anggota</h2><table id="tabelAnggota"></table></div>
+
+<script>
+const URL_API = "https://script.google.com/macros/s/AKfycbz3WOkiyRDIvHGetegTqMYoSC7aUkzclAOi-HLen2n_JtgWQ04afGyJ0LLyAOiQCuD5/exec"; // GANTI NENG KENE SAMA
+
+fetch(URL_API+"?sheet=artikel").then(r=>r.json()).then(data=>{
+  let html=""; data.forEach(a=>html+=`<div><h3>${a.judul}</h3><p>${a.tanggal}</p><p>${a.isi}</p></div><hr>`);
+  document.getElementById("listArtikel").innerHTML = html;
+});
+
+fetch(URL_API+"?sheet=anggota").then(r=>r.json()).then(data=>{
+  let html="<tr><th>Nama</th><th>Jabatan</th><th>Kapal</th></tr>";
+  data.forEach(a=>html+=`<tr><td>${a.nama}</td><td>${a.jabatan}</td><td>${a.kapal}</td></tr>`);
+  document.getElementById("tabelAnggota").innerHTML = html;
+});
+</script></body></html>

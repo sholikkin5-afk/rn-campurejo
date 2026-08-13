@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><title>Admin RN Online</title>
+<style>body{font-family:Arial;max-width:900px;margin:20px auto;padding:20px;background:#f5f5f5}input,textarea{width:100%;padding:10px;margin:5px 0}button{background:#004080;color:white;padding:10px;border:none;border-radius:5px;cursor:pointer}.box{background:white;padding:15px;margin:10px 0;border-radius:8px}</style>
+</head><body>
+<h1>🔐 Admin RN Online</h1>
+<div class="box">
+  <h3>Tambah Artikel</h3>
+  <input id="judul" placeholder="Judul">
+  <textarea id="isi" rows="3"></textarea>
+  <input id="gambar" type="file" accept="image/*">
+  <button onclick="kirimArtikel()">Kirim</button>
+</div>
+<div class="box">
+  <h3>Tambah Anggota</h3>
+  <input id="nama" placeholder="Nama">
+  <input id="jabatan" placeholder="Jabatan">
+  <input id="kapal" placeholder="Nama Kapal">
+  <button onclick="kirimAnggota()">Kirim</button>
+</div>
+<script>
+const URL_API = "https://script.google.com/macros/s/AKfycbz3WOkiyRDIvHGetegTqMYoSC7aUkzclAOi-HLen2n_JtgWQ04afGyJ0LLyAOiQCuD5/exec"; // GANTI NENG KENE
+
+function kirimArtikel(){
+  let data = {action:"add", sheet:"artikel", judul:judul.value, isi:isi.value, tanggal:new Date().toLocaleDateString("id-ID"), gambar:""};
+  fetch(URL_API, {method:"POST", body:JSON.stringify(data)}).then(()=>alert("Terkirim!"));
+}
+function kirimAnggota(){
+  let data = {action:"addAnggota", sheet:"anggota", nama:nama.value, jabatan:jabatan.value, kapal:kapal.value};
+  fetch(URL_API, {method:"POST", body:JSON.stringify(data)}).then(()=>alert("Terkirim!"));
+}
+</script></body></html>
