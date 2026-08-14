@@ -159,15 +159,10 @@ async function bukaModal(id){
   modalTanggal.innerText = new Date(data.tanggal).toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
   modalIsi.innerText = data.isi;
 
-  // KODE BARU BEN RA PETENG
+  // KODE YOUTUBE
   if(data.video_link){
-    let videoUrl = data.video_link;
-    // Otomatis ngubah link /preview dadi /uc?export=download&id=
-    if(videoUrl.includes('/file/d/') && videoUrl.includes('/preview')){
-      const id = videoUrl.split('/file/d/')[1].split('/')[0];
-      videoUrl = `https://drive.google.com/uc?export=download&id=${id}`;
-    }
-    modalVideo.innerHTML = `<video src="${videoUrl}" controls controlsList="nodownload" class="w-full h-52 md:h-80 rounded-lg bg-black"></video>`;
+    let videoId = data.video_link.split('youtu.be/')[1] || data.video_link.split('v=')[1];
+    modalVideo.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" class="w-full h-52 md:h-80 rounded-lg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
   } else {
     modalVideo.innerHTML = '';
   }
