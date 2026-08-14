@@ -158,7 +158,20 @@ async function bukaModal(id){
   modalGambar.src = data.gambar_link;
   modalTanggal.innerText = new Date(data.tanggal).toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
   modalIsi.innerText = data.isi;
-  modalVideo.innerHTML = data.video_link?`<iframe src="${data.video_link}" class="w-full h-52 md:h-80 rounded-lg" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>` : '';
+
+  // KODE BARU BEN RA PETENG
+  if(data.video_link){
+    let videoUrl = data.video_link;
+    // Otomatis ngubah link /preview dadi /uc?export=download&id=
+    if(videoUrl.includes('/file/d/') && videoUrl.includes('/preview')){
+      const id = videoUrl.split('/file/d/')[1].split('/')[0];
+      videoUrl = `https://drive.google.com/uc?export=download&id=${id}`;
+    }
+    modalVideo.innerHTML = `<video src="${videoUrl}" controls controlsList="nodownload" class="w-full h-52 md:h-80 rounded-lg bg-black"></video>`;
+  } else {
+    modalVideo.innerHTML = '';
+  }
+
   modalArtikel.classList.remove('hidden'); modalArtikel.classList.add('flex');
   loadLike(); loadKomentar();
 }
