@@ -13,7 +13,6 @@
   <aside id="sidebar" class="w-64 bg-blue-900 text-white p-5 fixed md:static h-full z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
     <h1 class="text-xl font-bold mb-8 hidden md:block">Admin RNPPU</h1>
     <nav class="space-y-2">
-      <!-- 1. MENU ARTIKEL DIKASI BG-BLUE-700 DEFAULT -->
       <button onclick="showTab('tentang', this)" class="menu-btn w-full text-left p-3 rounded hover:bg-blue-700 flex items-center gap-3">📄 <span>Tentang</span></button>
       <button onclick="showTab('artikel', this)" class="menu-btn w-full text-left p-3 rounded hover:bg-blue-700 flex items-center gap-3 bg-blue-700">📰 <span>Artikel</span></button>
       <button onclick="showTab('anggota', this)" class="menu-btn w-full text-left p-3 rounded hover:bg-blue-700 flex items-center gap-3">👥 <span>Anggota</span></button>
@@ -23,7 +22,6 @@
   <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
 
   <main class="flex-1 p-4 md:p-8 overflow-y-auto w-full">
-    <!-- 2. TENTANG DIKASI HIDDEN DEFAULT -->
     <div id="tentang" class="tab-content hidden bg-white p-6 rounded-xl shadow">
       <h2 class="text-2xl font-bold mb-4">Edit Tentang & Sambutan</h2>
       <label class="font-bold">Sambutan Ketua</label><textarea id="tentangTxt" class="w-full border p-3 rounded mb-3 h-32"></textarea>
@@ -33,7 +31,6 @@
       <p id="statusTentang" class="mt-3 font-bold"></p>
     </div>
 
-    <!-- 3. ARTIKEL DIHAPUS HIDDEN NE BEN MUNCUL DEFAULT -->
     <div id="artikel" class="tab-content bg-white p-6 rounded-xl shadow">
       <h2 class="text-2xl font-bold mb-4">Kelola Artikel</h2>
       <input type="hidden" id="editIdArtikel">
@@ -42,11 +39,12 @@
       <label class="font-bold">Upload Gambar</label><input type="file" id="gambar" accept="image/*" class="w-full p-2 mb-3 border rounded">
       <p class="text-xs text-gray-500 mb-3">*Auto kompres max 1200px</p>
 
-      <label class="font-bold">Link Video Google Drive</label>
-      <input id="videoLink" type="text" placeholder="https://drive.google.com/file/d/.../preview" class="w-full border p-3 rounded mb-1">
-      <p class="text-xs text-gray-500 mb-3">Carane: Upload ke Drive > Bagikan > Siapa saja > Copy link > ganti /view dadi /preview</p>
+      <label class="font-bold">Link Video Youtube</label>
+      <input id="videoLink" type="text" placeholder="https://youtu.be/5MD4H9_aXGM" class="w-full border p-3 rounded mb-1">
+      <p class="text-xs text-gray-500 mb-3">*Set video "Tidak Publik" + "Izinkan Penyematan"</p>
 
       <button onclick="saveArtikel()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold w-full md:w-auto">Simpan Artikel</button>
+      <button onclick="resetFormArtikel()" id="btnBatalEdit" class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-3 rounded-lg font-bold w-full md:w-auto ml-0 md:ml-3 mt-2 md:mt-0 hidden">Batal Edit</button>
       <p id="statusArtikel" class="mt-3 font-bold"></p><hr class="my-6">
       <h3 class="font-bold mb-3">Daftar Artikel</h3><div id="listArtikel" class="space-y-3 max-h-96 overflow-y-auto"></div>
     </div>
@@ -63,6 +61,7 @@
         <button type="button" onclick="setWilayah('Belandongan Kulon')" id="btnKulon" class="flex-1 p-3 rounded-lg font-bold bg-gray-300 text-gray-700">Belandongan Kulon</button>
       </div>
       <button onclick="saveAnggota()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold w-full md:w-auto">Simpan Anggota</button>
+      <button onclick="resetFormAnggota()" id="btnBatalEditAnggota" class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-3 rounded-lg font-bold w-full md:w-auto ml-0 md:ml-3 mt-2 md:mt-0 hidden">Batal Edit</button>
       <p id="statusAnggota" class="mt-3 font-bold"></p><hr class="my-6">
       <h3 class="font-bold mb-3">Daftar Anggota</h3><div id="listAnggota" class="space-y-2 max-h-96 overflow-y-auto"></div>
     </div>
@@ -73,10 +72,22 @@
       <input id="namaP" type="text" placeholder="Nama Pengurus" class="w-full border p-3 rounded mb-3">
       <input id="jabatanP" type="text" placeholder="Jabatan" class="w-full border p-3 rounded mb-3">
       <button onclick="savePengurus()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-bold w-full md:w-auto">Simpan Pengurus</button>
+      <button onclick="resetFormPengurus()" id="btnBatalEditPengurus" class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-3 rounded-lg font-bold w-full md:w-auto ml-0 md:ml-3 mt-2 md:mt-0 hidden">Batal Edit</button>
       <p id="statusPengurus" class="mt-3 font-bold"></p><hr class="my-6">
       <h3 class="font-bold mb-3">Daftar Pengurus</h3><div id="listPengurus" class="space-y-2 max-h-96 overflow-y-auto"></div>
     </div>
   </main>
+</div>
+
+<!-- POPUP KONFIRMASI CUSTOM BEN ONOK TOMBOL BATAL -->
+<div id="popupKonfirmasi" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+  <div class="bg-white p-6 rounded-xl shadow-2xl w-11/12 max-w-sm">
+    <p id="teksKonfirmasi" class="text-lg font-bold mb-5">Yakin hapus?</p>
+    <div class="flex gap-3">
+      <button onclick="tutupPopup()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-black font-bold py-3 rounded-lg">Batal</button>
+      <button id="btnHapusFix" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg">Hapus</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -85,16 +96,24 @@ const SUPABASE_KEY = "sb_publishable_mnYJXj_CVswO5TY0kcXnbA_-VeT3Zko";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let wilayahPilihan = "Belandongan Wetan";
 
+// VARIABEL GLOBAL BUAT POPUP HAPUS
+let idHapus = null;
+let tabelHapus = null;
+
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('-translate-x-full');
   document.getElementById('overlay').classList.toggle('hidden');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.add('-translate-x-full');
+  document.getElementById('overlay').classList.add('hidden');
 }
 function showTab(id, el){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
   document.querySelectorAll('.menu-btn').forEach(b=>b.classList.remove('bg-blue-700'));
-  el.classList.add('bg-blue-700');
-  if(window.innerWidth < 768) toggleSidebar();
+  if(el) el.classList.add('bg-blue-700');
+  closeSidebar(); // GANTI toggle dadi close ben ra mbukak maneh
 }
 function setWilayah(w){
   wilayahPilihan=w;
@@ -118,14 +137,37 @@ function kompresGambar(file,callback){
   reader.readAsDataURL(file)
 }
 
-// CRUD TENTANG
+// FUNGSI POPUP HAPUS BARU
+function bukaPopup(id, tabel, teks){
+  idHapus = id;
+  tabelHapus = tabel;
+  document.getElementById('teksKonfirmasi').innerText = teks;
+  document.getElementById('popupKonfirmasi').classList.remove('hidden');
+  document.getElementById('popupKonfirmasi').classList.add('flex');
+}
+function tutupPopup(){
+  document.getElementById('popupKonfirmasi').classList.add('hidden');
+  document.getElementById('popupKonfirmasi').classList.remove('flex');
+  idHapus = null;
+  tabelHapus = null;
+}
+document.getElementById('btnHapusFix').onclick = async function(){
+  if(!idHapus) return;
+  await supabaseClient.from(tabelHapus).delete().eq('id', idHapus);
+  tutupPopup();
+  if(tabelHapus == 'artikel') loadArtikel();
+  if(tabelHapus == 'anggota') loadAnggota();
+  if(tabelHapus == 'pengurus') loadPengurus();
+}
+
+// CRUD TENTANG - AMAN
 async function saveTentang(){
   const {error} = await supabaseClient.from('tentang').update({tentang:tentangTxt.value,visi:visiTxt.value,misi:misiTxt.value}).eq('id',1);
   statusTentang.innerText = error? "❌ Gagal Simpan: " + error.message : "✅ Data Berhasil Disimpan";
   statusTentang.className = error? "mt-3 font-bold text-red-600" : "mt-3 font-bold text-green-600";
 }
 
-// CRUD ARTIKEL + VIDEO
+// CRUD ARTIKEL + VIDEO + EDIT FIX - AMAN
 async function saveArtikel(){
   statusArtikel.innerText="⏳ Menyimpan...";
   const id=editIdArtikel.value;const file=gambar.files[0];let url="";
@@ -143,26 +185,26 @@ async function saveArtikel(){
   statusArtikel.innerText=res.error?"❌ Gagal DB: " + res.error.message:"✅ Artikel Tersimpan";
   if(!res.error){ resetFormArtikel();loadArtikel(); }
 }
-function resetFormArtikel(){editIdArtikel.value="";judul.value="";isi.value="";gambar.value="";videoLink.value="";}
-async function loadArtikel(){const {data}=await supabaseClient.from('artikel').select('*').order('tanggal',{ascending:false});listArtikel.innerHTML=data&&data.length>0?data.map(a=>`<div class="p-3 border rounded-lg flex justify-between items-center"><span class="font-bold">${a.judul}</span><div><button onclick='editArtikel(${JSON.stringify(a)})' class="text-blue-600 mr-3 font-bold">Edit</button><button onclick='hapusArtikel(${a.id})' class="text-red-600 font-bold">Hapus</button></div></div>`).join(''):"<p>Belum ada artikel</p>"}
-function editArtikel(a){editIdArtikel.value=a.id;judul.value=a.judul;isi.value=a.isi;videoLink.value=a.video_link||"";showTab('artikel', document.querySelectorAll('.menu-btn')[1]);}
-async function hapusArtikel(id){if(confirm("Yakin hapus artikel ini?")){await supabaseClient.from('artikel').delete().eq('id',id);loadArtikel();}}
+function resetFormArtikel(){editIdArtikel.value="";judul.value="";isi.value="";gambar.value="";videoLink.value="";document.getElementById('btnBatalEdit').classList.add('hidden');}
+async function loadArtikel(){const {data}=await supabaseClient.from('artikel').select('*').order('tanggal',{ascending:false});listArtikel.innerHTML=data&&data.length>0?data.map(a=>`<div class="p-3 border rounded-lg flex justify-between items-center"><span class="font-bold">${a.judul}</span><div><button onclick="editArtikelById(${a.id})" class="text-blue-600 mr-3 font-bold">Edit</button><button onclick="hapusArtikel(${a.id})" class="text-red-600 font-bold">Hapus</button></div></div>`).join(''):"<p>Belum ada artikel</p>"}
+async function editArtikelById(id){const {data} = await supabaseClient.from('artikel').select('*').eq('id', id).single();if(data){editIdArtikel.value=data.id;judul.value=data.judul;isi.value=data.isi;videoLink.value=data.video_link||"";document.getElementById('btnBatalEdit').classList.remove('hidden');showTab('artikel', document.querySelectorAll('.menu-btn')[1]);window.scrollTo(0,0);}}
+async function hapusArtikel(id){ bukaPopup(id, 'artikel', 'Yakin hapus artikel ini?') }
 
-// CRUD ANGGOTA
+// CRUD ANGGOTA + EDIT FIX - AMAN
 async function saveAnggota(){const id=editIdAnggota.value;const data={nama:namaA.value,alamat:alamatA.value,kapal:kapalA.value,wilayah:wilayahPilihan};const res=id? await supabaseClient.from('anggota').update(data).eq('id',id) : await supabaseClient.from('anggota').insert([data]);statusAnggota.innerText=res.error?"❌ Gagal: " + res.error.message:"✅ Anggota Tersimpan";if(!res.error){resetFormAnggota();loadAnggota();}}
-function resetFormAnggota(){editIdAnggota.value="";namaA.value="";alamatA.value="";kapalA.value="";}
-async function loadAnggota(){const {data}=await supabaseClient.from('anggota').select('*').order('nama');listAnggota.innerHTML=data&&data.length>0?data.map(a=>`<div class="p-3 border rounded-lg flex justify-between items-center"><div><p class="font-bold">${a.nama}</p><p class="text-xs">${a.wilayah}</p></div><div><button onclick='editAnggota(${JSON.stringify(a)})' class="text-blue-600 mr-3 font-bold">Edit</button><button onclick='hapusAnggota(${a.id})' class="text-red-600 font-bold">Hapus</button></div></div>`).join(''):"<p>Belum ada data</p>"}
-function editAnggota(a){editIdAnggota.value=a.id;namaA.value=a.nama;alamatA.value=a.alamat;kapalA.value=a.kapal;setWilayah(a.wilayah);showTab('anggota', document.querySelectorAll('.menu-btn')[2]);}
-async function hapusAnggota(id){if(confirm("Yakin hapus anggota ini?")){await supabaseClient.from('anggota').delete().eq('id',id);loadAnggota();}}
+function resetFormAnggota(){editIdAnggota.value="";namaA.value="";alamatA.value="";kapalA.value="";document.getElementById('btnBatalEditAnggota').classList.add('hidden');}
+async function loadAnggota(){const {data}=await supabaseClient.from('anggota').select('*').order('nama');listAnggota.innerHTML=data&&data.length>0?data.map(a=>`<div class="p-3 border rounded-lg flex justify-between items-center"><div><p class="font-bold">${a.nama}</p><p class="text-xs">${a.wilayah}</p></div><div><button onclick='editAnggotaById(${a.id})' class="text-blue-600 mr-3 font-bold">Edit</button><button onclick='hapusAnggota(${a.id})' class="text-red-600 font-bold">Hapus</button></div></div>`).join(''):"<p>Belum ada data</p>"}
+async function editAnggotaById(id){const {data} = await supabaseClient.from('anggota').select('*').eq('id', id).single();if(data){editIdAnggota.value=data.id;namaA.value=data.nama;alamatA.value=data.alamat;kapalA.value=data.kapal;setWilayah(data.wilayah);document.getElementById('btnBatalEditAnggota').classList.remove('hidden');showTab('anggota', document.querySelectorAll('.menu-btn')[2]);window.scrollTo(0,0);}}
+async function hapusAnggota(id){ bukaPopup(id, 'anggota', 'Yakin hapus anggota ini?') }
 
-// CRUD PENGURUS
+// CRUD PENGURUS + EDIT FIX - AMAN
 async function savePengurus(){const id=editIdPengurus.value;const data={nama:namaP.value,jabatan:jabatanP.value};const res=id? await supabaseClient.from('pengurus').update(data).eq('id',id) : await supabaseClient.from('pengurus').insert([data]);statusPengurus.innerText=res.error?"❌ Gagal: " + res.error.message:"✅ Pengurus Tersimpan";if(!res.error){resetFormPengurus();loadPengurus();}}
-function resetFormPengurus(){editIdPengurus.value="";namaP.value="";jabatanP.value="";}
-async function loadPengurus(){const {data}=await supabaseClient.from('pengurus').select('*').order('id');listPengurus.innerHTML=data&&data.length>0?data.map(p=>`<div class="p-3 border rounded-lg flex justify-between items-center"><div><p class="font-bold">${p.nama}</p><p class="text-xs">${p.jabatan}</p></div><div><button onclick='editPengurus(${JSON.stringify(p)})' class="text-blue-600 mr-3 font-bold">Edit</button><button onclick='hapusPengurus(${p.id})' class="text-red-600 font-bold">Hapus</button></div></div>`).join(''):"<p>Belum ada data</p>"}
-function editPengurus(p){editIdPengurus.value=p.id;namaP.value=p.nama;jabatanP.value=p.jabatan;showTab('pengurus', document.querySelectorAll('.menu-btn')[3]);}
-async function hapusPengurus(id){if(confirm("Yakin hapus pengurus ini?")){await supabaseClient.from('pengurus').delete().eq('id',id);loadPengurus();}}
+function resetFormPengurus(){editIdPengurus.value="";namaP.value="";jabatanP.value="";document.getElementById('btnBatalEditPengurus').classList.add('hidden');}
+async function loadPengurus(){const {data}=await supabaseClient.from('pengurus').select('*').order('id');listPengurus.innerHTML=data&&data.length>0?data.map(p=>`<div class="p-3 border rounded-lg flex justify-between items-center"><div><p class="font-bold">${p.nama}</p><p class="text-xs">${p.jabatan}</p></div><div><button onclick='editPengurusById(${p.id})' class="text-blue-600 mr-3 font-bold">Edit</button><button onclick='hapusPengurus(${p.id})' class="text-red-600 font-bold">Hapus</button></div></div>`).join(''):"<p>Belum ada data</p>"}
+async function editPengurusById(id){const {data} = await supabaseClient.from('pengurus').select('*').eq('id', id).single();if(data){editIdPengurus.value=data.id;namaP.value=data.nama;jabatanP.value=data.jabatan;document.getElementById('btnBatalEditPengurus').classList.remove('hidden');showTab('pengurus', document.querySelectorAll('.menu-btn')[3]);window.scrollTo(0,0);}}
+async function hapusPengurus(id){ bukaPopup(id, 'pengurus', 'Yakin hapus pengurus ini?') }
 
-// INIT
+// INIT - AMAN
 supabaseClient.from('tentang').select('*').eq('id',1).single().then(({data, error})=>{
   if(error) statusTentang.innerText = "❌ Gagal load: " + error.message;
   if(data){tentangTxt.value=data.tentang||'';visiTxt.value=data.visi||'';misiTxt.value=data.misi||'';}
