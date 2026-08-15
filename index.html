@@ -23,8 +23,9 @@
 <main class="max-w-6xl mx-auto p-3">
   <section id="sambutan" class="bg-white p-4 rounded-xl shadow-lg my-4 border-l-4 border-blue-700" data-aos="fade-up"></section>
 
-  <div class="my-4" data-aos="fade-up">
-    <input type="text" id="searchArtikel" placeholder="🔍 Cari berita..." class="w-full p-2.5 text-sm border-2 border-gray-200 rounded-lg focus:border-blue-500 outline-none">
+  <div class="my-4 flex gap-2" data-aos="fade-up">
+    <input type="text" id="searchArtikel" placeholder="🔍 Cari berita..." class="flex-1 p-2.5 text-sm border-2 border-gray-200 rounded-lg focus:border-blue-500 outline-none">
+    <button id="btnArsip" onclick="toggleArsip()" class="px-4 py-2 text-sm rounded-lg font-bold bg-gray-200 text-gray-700">Tampil Arsip</button>
   </div>
 
   <section>
@@ -62,7 +63,7 @@
       <h3 id="modalJudul" class="text-lg md:text-xl font-bold text-blue-900"></h3>
       <button onclick="tutupModal()" class="text-2xl text-gray-500 hover:text-red-500">×</button>
     </div>
-    <img id="modalGambar" src="" class="w-full h-52 object-cover">
+    <img id="modalGambar" src="" class="w-full h-52 object-cover hidden">
     <div id="modalVideo" class="px-4 pt-3"></div>
     <div class="p-4">
       <p id="modalTanggal" class="text-xs text-gray-500 mb-2"></p>
@@ -95,6 +96,7 @@ const SUPABASE_KEY = "sb_publishable_mnYJXj_CVswO5TY0kcXnbA_-VeT3Zko";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const hariIni = new Date().toISOString().split('T')[0];
 let artikelAktif = null;
+let tampilkanArsip = false; // DEFAULT: MUNG TAMPIL AKTIF
 
 function togglePengurus(){
   const wrapper = document.getElementById('pengurusWrapper');
@@ -103,42 +105,64 @@ function togglePengurus(){
   icon.innerText = wrapper.classList.contains('hidden')? '+' : '−';
 }
 
+function toggleArsip(){
+  tampilkanArsip =!tampilkanArsip;
+  btnArsip.innerText = tampilkanArsip? "Sembunyikan Arsip" : "Tampil Arsip";
+  btnArsip.className = tampilkanArsip? "px-4 py-2 text-sm rounded-lg font-bold bg-orange-500 text-white" : "px-4 py-2 text-sm rounded-lg font-bold bg-gray-200 text-gray-700";
+  loadArtikel(document.getElementById('searchArtikel').value);
+}
+
 async function loadAll(){
-  const {data:tentang} = await supabaseClient.from('tentang').select('*').eq('id',1).single();
-  if(tentang){ sambutan.innerHTML = `<h3 class="text-lg font-bold mb-2 text-blue-900">Sambutan Ketua</h3><p class="text-sm text-gray-700 mb-3">${tentang.tentang}</p><div class="bg-blue-50 p-3 rounded-lg text-sm"><p class="mb-1"><b>Visi:</b> ${tentang.visi}</p><p><b>Misi:</b> ${tentang.misi}</p></div>`; }
+  const {data:tentang, error:errTentang} = await supabaseClient.from('tentang').select('*').eq('id',1).single();
+  if(!errTentang && tentang){ sambutan.innerHTML = `<h3 class="text-lg font-bold mb-2 text-blue-900">Sambutan Ketua</h3><p class="text-sm text-gray-700 mb-3">${tentang.tentang}</p><div class="bg-blue-50 p-3 rounded-lg text-sm"><p class="mb-1"><b>Visi:</b> ${tentang.visi}</p><p><b>Misi:</b> ${tentang.misi}</p></div>`; }
 
   loadArtikel();
 
-  const {data:pengurus} = await supabaseClient.from('pengurus').select('*').order('id');
-  pengurusList.innerHTML = pengurus && pengurus.length > 0? pengurus.map(p=>`
+  const {data:pengurus, error:errPengurus} = await supabaseClient.from('pengurus').select('*').order('id');
+  if(!errPengurus){ pengurusList.innerHTML = pengurus && pengurus.length > 0? pengurus.map(p=>`
       <div class="flex justify-between items-center p-3 bg-gray-50 hover:bg-blue-50 rounded-lg border-l-4 border-blue-600 transition">
         <div><p class="font-bold text-sm text-blue-900">${p.nama}</p><p class="text-xs text-gray-600">${p.jabatan}</p></div>
       </div>
-    `).join('') : "<p class='text-sm text-center text-gray-500'>Belum ada data</p>";
+    `).join('') : "<p class='text-sm text-center text-gray-500'>Belum ada data</p>"; }
   loadAnggota('Belandongan Wetan');
 }
 
 async function loadArtikel(cari=""){
-  let query = supabaseClient.from('artikel').select('*').gte('tgl_expired',hariIni).order('tanggal',{ascending:false});
+  // LOGIKA BARU: LEK ARSIP OFF MUNG AMBIL AKTIF. LEK ON AMBIL KABEH
+  let query = supabaseClient.from('artikel').select('*');
+  if(!tampilkanArsip) query = query.gte('tgl_expired',hariIni);
+  query = query.order('tanggal',{ascending:false});
   if(cari) query = query.ilike('judul',`%${cari}%`);
-  const {data:artikel} = await query;
-  
+  const {data:artikel, error} = await query;
+  if(error){ artikelList.innerHTML = `<p class='col-span-full text-center text-red-500'>Gagal load: ${error.message}</p>`; return; }
+
   // AMBIL JUMLAH LIKE SAK GUS
   const artikelIds = artikel.map(a=>a.id);
-  const {data:likes} = await supabaseClient.from('like').select('artikel_id');
+  const {data:likes} = artikelIds.length > 0? await supabaseClient.from('likes').select('artikel_id').in('artikel_id', artikelIds) : {data:[]};
   const likeCount = {};
-  likes.forEach(l=> likeCount[l.artikel_id] = (likeCount[l.artikel_id]||0)+1 );
+  if(likes) likes.forEach(l=> likeCount[l.artikel_id] = (likeCount[l.artikel_id]||0)+1 );
 
-  artikelList.innerHTML = artikel && artikel.length > 0? artikel.map(a=>`
-    <div onclick="bukaModal(${a.id})" class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition cursor-pointer" data-aos="zoom-in">
-      <img src="${a.gambar_link}" onerror="this.src='https://placehold.co/400x200'" class="w-full h-40 object-cover">
-      <div class="p-3">
-        <p class="text-[10px] text-gray-500">${new Date(a.tanggal).toLocaleDateString('id-ID')}</p>
-        <h3 class="font-bold text-base mb-1 text-blue-900">${a.judul}</h3>
-        <p class="text-sm text-gray-600 mb-2">${a.isi.substring(0,90)}...</p>
-        <p class="text-xs font-bold text-red-500">❤️ ${likeCount[a.id] || 0} Suka</p>
-      </div>
-    </div>`).join('') : "<p class='col-span-full text-center text-gray-500 text-sm'>Belum ada artikel</p>";
+  artikelList.innerHTML = artikel && artikel.length > 0? artikel.map(a=>{
+    const kadaluarsa = new Date(a.tgl_expired) < new Date();
+    if(kadaluarsa){
+      // MODE ARSIP: KARTU KECIL JUDUL TOK
+      return `<div onclick="bukaModal(${a.id})" class="p-3 bg-gray-100 rounded-lg border-l-4 border-orange-400 cursor-pointer hover:bg-gray-200 transition" data-aos="fade-up">
+        <span class="font-bold text-gray-600 text-sm">📦 ${a.judul}</span>
+        <p class="text-[10px] text-gray-500">Arsip - ${new Date(a.tanggal).toLocaleDateString('id-ID')} - Klik untuk baca</p>
+      </div>`
+    } else {
+      // MODE AKTIF: KARTU NORMAL
+      return `<div onclick="bukaModal(${a.id})" class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition cursor-pointer" data-aos="zoom-in">
+        <img src="${a.gambar_link}" onerror="this.src='https://placehold.co/400x200'" class="w-full h-40 object-cover">
+        <div class="p-3">
+          <p class="text-[10px] text-gray-500">${new Date(a.tanggal).toLocaleDateString('id-ID')}</p>
+          <h3 class="font-bold text-base mb-1 text-blue-900">${a.judul}</h3>
+          <p class="text-sm text-gray-600 mb-2">${a.isi.substring(0,90)}...</p>
+          <p class="text-xs font-bold text-red-500">❤️ ${likeCount[a.id] || 0} Suka</p>
+        </div>
+      </div>`
+    }
+  }).join('') : "<p class='col-span-full text-center text-gray-500 text-sm'>Belum ada artikel</p>";
 }
 
 document.getElementById('searchArtikel').addEventListener('input', (e)=>loadArtikel(e.target.value));
@@ -152,16 +176,18 @@ async function loadAnggota(wilayah){
 }
 
 async function bukaModal(id){
-  const {data} = await supabaseClient.from('artikel').select('*').eq('id',id).single();
+  const {data, error} = await supabaseClient.from('artikel').select('*').eq('id',id).single();
+  if(error){ alert("Gagal load artikel: " + error.message); return; }
   artikelAktif = data;
   modalJudul.innerText = data.judul;
-  modalGambar.src = data.gambar_link;
+  if(data.gambar_link){ modalGambar.src = data.gambar_link; modalGambar.classList.remove('hidden'); } else { modalGambar.classList.add('hidden'); }
   modalTanggal.innerText = new Date(data.tanggal).toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
   modalIsi.innerText = data.isi;
 
   // KODE YOUTUBE
   if(data.video_link){
     let videoId = data.video_link.split('youtu.be/')[1] || data.video_link.split('v=')[1];
+    if(videoId) videoId = videoId.split('&')[0];
     modalVideo.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" class="w-full h-52 md:h-80 rounded-lg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
   } else {
     modalVideo.innerHTML = '';
@@ -173,13 +199,12 @@ async function bukaModal(id){
 function tutupModal(){ modalArtikel.classList.add('hidden'); modalArtikel.classList.remove('flex'); }
 
 async function loadLike(){
-  const {data} = await supabaseClient.from('like').select('*').eq('artikel_id',artikelAktif.id);
-  jmlLike.innerText = data.length;
-  
-  // CEK WES LIKE OPO DURUNG
+  const {data, error} = await supabaseClient.from('likes').select('*').eq('artikel_id',artikelAktif.id);
+  if(!error) jmlLike.innerText = data.length;
+
   const key = 'liked_'+artikelAktif.id;
   if(localStorage.getItem(key)){
-    btnLike.className = "flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg bg-red-500 text-white";
+    btnLike.className = "flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg bg-red-500 text-white cursor-not-allowed";
     btnLike.disabled = true;
   } else {
     btnLike.className = "flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200";
@@ -190,20 +215,25 @@ async function loadLike(){
 async function likeArtikel(){
   const key = 'liked_'+artikelAktif.id;
   if(localStorage.getItem(key)) return alert("Wes tau like iki mas 😁");
-  
-  await supabaseClient.from('like').insert([{artikel_id:artikelAktif.id}]);
+
+  const {error} = await supabaseClient.from('likes').insert([{artikel_id:artikelAktif.id}]);
+  if(error){ alert("Gagal like: " + error.message); return; }
   localStorage.setItem(key, 'true');
   loadLike();
-  loadArtikel(); // Refresh jumlah like neng kartu
+  loadArtikel(document.getElementById('searchArtikel').value); // Refresh jumlah like neng kartu
 }
 
+// UPGRADE KOMENTAR: TAK TAMBAHI ERROR HANDLING + LOADING
 async function loadKomentar(){
-  const {data} = await supabaseClient.from('komentar').select('*').eq('artikel_id',artikelAktif.id).order('tanggal',{ascending:false});
-  listKomentar.innerHTML = data && data.length > 0? data.map(k=>`<div class="bg-gray-100 p-2 rounded-lg"><p class="font-bold text-xs">${k.nama}</p><p class="text-sm">${k.komentar}</p></div>`).join('') : "<p class='text-xs text-gray-500'>Belum ada komentar</p>";
+  listKomentar.innerHTML = "<p class='text-xs text-gray-400'>Loading komentar...</p>";
+  const {data, error} = await supabaseClient.from('komentar').select('*').eq('artikel_id',artikelAktif.id).order('tanggal',{ascending:false});
+  if(error){ listKomentar.innerHTML = `<p class='text-xs text-red-500'>Gagal load: ${error.message}</p>`; return; }
+  listKomentar.innerHTML = data && data.length > 0? data.map(k=>`<div class="bg-gray-100 p-2 rounded-lg"><p class="font-bold text-xs text-blue-800">${k.nama}</p><p class="text-sm">${k.komentar}</p><p class="text-[10px] text-gray-400">${new Date(k.tanggal).toLocaleString('id-ID')}</p></div>`).join('') : "<p class='text-xs text-gray-500'>Belum ada komentar</p>";
 }
 async function kirimKomentar(){
-  if(!namaKomen.value ||!isiKomen.value) return alert('Nama dan komentar wajib diisi');
-  await supabaseClient.from('komentar').insert([{tanggal:new Date(), artikel_id:artikelAktif.id, nama:namaKomen.value, komentar:isiKomen.value}]);
+  if(!namaKomen.value.trim() ||!isiKomen.value.trim()) return alert('Nama dan komentar wajib diisi');
+  const {error} = await supabaseClient.from('komentar').insert([{tanggal:new Date(), artikel_id:artikelAktif.id, nama:namaKomen.value.trim(), komentar:isiKomen.value.trim()}]);
+  if(error){ alert("Gagal kirim komentar: " + error.message + "\nCek jeneng tabel 'komentar' neng Supabase"); return; }
   namaKomen.value=""; isiKomen.value=""; loadKomentar();
 }
 

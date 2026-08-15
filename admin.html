@@ -1,8 +1,9 @@
 <!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin RNPPU</title>
 <meta name="theme-color" content="#1e3a8a">
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="/manifest-admin.json">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script> <!-- GOOGLE API -->
 </head>
 <body class="bg-gray-100">
 
@@ -39,11 +40,14 @@
       <input id="judul" type="text" placeholder="Judul Artikel" class="w-full border p-3 rounded mb-3">
       <textarea id="isi" placeholder="Isi Artikel" class="w-full border p-3 rounded mb-3 h-40"></textarea>
       <label class="font-bold">Upload Gambar</label><input type="file" id="gambar" accept="image/*" class="w-full p-2 mb-3 border rounded">
-      <p class="text-xs text-gray-500 mb-3">*Auto kompres max 1200px</p>
+      <p class="text-xs text-gray-500 mb-3">*Auto kompres max 1200px. Lewat 30 hari jadi arsip</p>
 
-      <label class="font-bold">Link Video Youtube</label>
-      <input id="videoLink" type="text" placeholder="https://youtu.be/5MD4H9_aXGM" class="w-full border p-3 rounded mb-1">
-      <p class="text-xs text-gray-500 mb-3">*Set video "Tidak Publik" + "Izinkan Penyematan"</p>
+      <!-- BAGIAN UPLOAD YOUTUBE BARU -->
+      <label class="font-bold">Upload Video Youtube</label>
+      <input type="file" id="videoFile" accept="video/*" class="w-full p-2 mb-2 border rounded">
+      <button onclick="uploadVideoYT()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded mb-3 w-full md:w-auto">Upload ke Youtube</button>
+      <input id="videoLink" type="hidden">
+      <p id="statusUploadYT" class="text-xs mb-3 font-bold"></p>
 
       <button onclick="saveArtikel()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold w-full md:w-auto">Simpan Artikel</button>
       <button onclick="resetFormArtikel()" id="btnBatalEdit" class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-3 rounded-lg font-bold w-full md:w-auto ml-0 md:ml-3 mt-2 md:mt-0 hidden">Batal Edit</button>
@@ -81,6 +85,21 @@
   </main>
 </div>
 
+<!-- POPUP LIAT ARTIKEL FULL -->
+<div id="popupArtikel" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4">
+  <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h2 id="popupJudul" class="text-2xl font-bold"></h2>
+      <button onclick="tutupPopupArtikel()" class="text-3xl font-bold">×</button>
+    </div>
+    <img id="popupGambar" src="" class="w-full rounded-lg mb-4 hidden">
+    <div id="popupVideo" class="mb-4 hidden"></div>
+    <p id="popupIsi" class="whitespace-pre-line"></p>
+    <p id="popupTgl" class="text-xs text-gray-500 mt-4"></p>
+  </div>
+</div>
+
+<!-- POPUP KONFIRMASI HAPUS -->
 <div id="popupKonfirmasi" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
   <div class="bg-white p-6 rounded-xl shadow-2xl w-11/12 max-w-sm">
     <p id="teksKonfirmasi" class="text-lg font-bold mb-5">Yakin hapus?</p>
@@ -95,9 +114,23 @@
 const SUPABASE_URL = "https://itmdkfqlrruoafwbynam.supabase.co";
 const SUPABASE_KEY = "sb_publishable_mnYJXj_CVswO5TY0kcXnbA_-VeT3Zko";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// === GOOGLE API KEY KAMU ===
+const CLIENT_ID = '927270605340-abjq9sfik0t68687m43sm1cck8haj55j.apps.googleusercontent.com';
+const API_KEY = 'AIzaSyAYKCkUIE9pl5-QLRjAclEv9gfiYLieg9Q';
+const SCOPES = 'https://www.googleapis.com/auth/youtube.upload';
+
 let wilayahPilihan = "Belandongan Wetan";
 let idHapus = null;
 let tabelHapus = null;
+let isGapiReady = false;
+
+function gapiLoaded() { gapi.load('client:auth2', initGapiClient); }
+async function initGapiClient() {
+  await gapi.client.init({ apiKey: API_KEY, clientId: CLIENT_ID, scope: SCOPES });
+  isGapiReady = true;
+  console.log("Google API Ready");
+}
 
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('-translate-x-full');
@@ -136,6 +169,32 @@ function kompresGambar(file,callback){
   reader.readAsDataURL(file)
 }
 
+// === FUNGSI UPLOAD YOUTUBE BARU ===
+async function uploadVideoYT(){
+  if(!isGapiReady) return alert("Tunggu Google API siap dulu 3 detik...");
+  const file = videoFile.files[0];
+  if(!file) return alert("Pilih file video dulu!");
+
+  statusUploadYT.innerText = "⏳ Login Google...";
+  const user = gapi.auth2.getAuthInstance().currentUser.get();
+  if (!user.isSignedIn()) await gapi.auth2.getAuthInstance().signIn();
+
+  statusUploadYT.innerText = "⏳ Upload ke Youtube... Tunggu 1-5 menit";
+
+  const metadata = {
+    snippet: { title: judul.value || "Video RNPPU Campurejo", description: "Diposting dari Website RNPPU Campurejo" },
+    status: { privacyStatus: "unlisted" } // unlisted = iso diembed tapi ra ketok neng youtube
+  };
+
+  gapi.client.youtube.videos.insert({ part: 'snippet,status', resource: metadata }).execute(res => {
+    if(res.error){ statusUploadYT.innerText = "❌ Gagal: " + res.error.message; return; }
+
+    const videoId = res.id;
+    videoLink.value = "https://youtu.be/" + videoId;
+    statusUploadYT.innerText = "✅ Upload Selesai! Link: " + videoLink.value;
+  });
+}
+
 function bukaPopup(id, tabel, teks){
   idHapus = id;
   tabelHapus = tabel;
@@ -158,6 +217,35 @@ document.getElementById('btnHapusFix').onclick = async function(){
   if(tabelHapus == 'pengurus') loadPengurus();
 }
 
+// FUNGSI POPUP LIAT ARTIKEL
+function bukaPopupArtikel(a){
+  document.getElementById('popupJudul').innerText = a.judul;
+  document.getElementById('popupIsi').innerText = a.isi;
+  document.getElementById('popupTgl').innerText = 'Diposting: ' + new Date(a.tanggal).toLocaleDateString('id-ID');
+
+  if(a.gambar_link){
+    document.getElementById('popupGambar').src = a.gambar_link;
+    document.getElementById('popupGambar').classList.remove('hidden');
+  } else {
+    document.getElementById('popupGambar').classList.add('hidden');
+  }
+
+  if(a.video_link){
+    const videoId = a.video_link.split('v=')[1] || a.video_link.split('youtu.be/')[1];
+    document.getElementById('popupVideo').innerHTML = `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+    document.getElementById('popupVideo').classList.remove('hidden');
+  } else {
+    document.getElementById('popupVideo').classList.add('hidden');
+  }
+
+  document.getElementById('popupArtikel').classList.remove('hidden');
+  document.getElementById('popupArtikel').classList.add('flex');
+}
+function tutupPopupArtikel(){
+  document.getElementById('popupArtikel').classList.add('hidden');
+  document.getElementById('popupArtikel').classList.remove('flex');
+}
+
 async function saveTentang(){
   const {error} = await supabaseClient.from('tentang').update({tentang:tentangTxt.value,visi:visiTxt.value,misi:misiTxt.value}).eq('id',1);
   statusTentang.innerText = error? "❌ Gagal Simpan: " + error.message : "✅ Data Berhasil Disimpan";
@@ -178,11 +266,33 @@ async function saveArtikel(){
   const tglExp = new Date();tglExp.setDate(tglExp.getDate()+30);
   const data={tanggal:new Date(),judul:judul.value,isi:isi.value,gambar_link:url,video_link:videoLink.value,durasi:"30 Hari",tgl_expired:tglExp};
   const res = id? await supabaseClient.from('artikel').update(data).eq('id',id) : await supabaseClient.from('artikel').insert([data]);
-  statusArtikel.innerText=res.error?"❌ Gagal DB: " + res.error.message:"✅ Artikel Tersimpan";
+  statusArtikel.innerText=res.error?"❌ Gagal DB: " + res.error.message:"✅ Artikel Tersimpan - Jadi arsip tgl " + tglExp.toLocaleDateString('id-ID');
   if(!res.error){ resetFormArtikel();loadArtikel(); }
 }
-function resetFormArtikel(){editIdArtikel.value="";judul.value="";isi.value="";gambar.value="";videoLink.value="";document.getElementById('btnBatalEdit').classList.add('hidden');}
-async function loadArtikel(){const {data}=await supabaseClient.from('artikel').select('*').order('tanggal',{ascending:false});listArtikel.innerHTML=data&&data.length>0?data.map(a=>`<div class="p-3 border rounded-lg flex justify-between items-center"><span class="font-bold">${a.judul}</span><div><button onclick="editArtikelById(${a.id})" class="text-blue-600 mr-3 font-bold">Edit</button><button onclick="hapusArtikel(${a.id})" class="text-red-600 font-bold">Hapus</button></div></div>`).join(''):"<p>Belum ada artikel</p>"}
+function resetFormArtikel(){editIdArtikel.value="";judul.value="";isi.value="";gambar.value="";videoFile.value="";videoLink.value="";statusUploadYT.innerText="";document.getElementById('btnBatalEdit').classList.add('hidden');}
+
+async function loadArtikel(){
+  const {data}=await supabaseClient.from('artikel').select('*').order('tanggal',{ascending:false});
+  const sekarang = new Date();
+  listArtikel.innerHTML=data&&data.length>0?data.map(a=>{
+    const kadaluarsa = new Date(a.tgl_expired) < sekarang;
+    if(kadaluarsa){
+      return `<div onclick='bukaPopupArtikel(${JSON.stringify(a)})' class="p-3 border rounded-lg bg-gray-100 cursor-pointer hover:bg-gray-200">
+        <span class="font-bold text-gray-500">📦 ${a.judul}</span>
+        <p class="text-xs text-gray-400">Arsip - Klik untuk lihat</p>
+      </div>`
+    } else {
+      const sisaHari = Math.ceil((new Date(a.tgl_expired) - sekarang) / (1000*60*60*24));
+      return `<div class="p-3 border rounded-lg flex justify-between items-center">
+        <div>
+          <span class="font-bold">${a.judul}</span>
+          <p class="text-xs text-green-600">Aktif - ${sisaHari} hari lagi</p>
+        </div>
+        <div><button onclick="event.stopPropagation(); editArtikelById(${a.id})" class="text-blue-600 mr-3 font-bold">Edit</button><button onclick="event.stopPropagation(); hapusArtikel(${a.id})" class="text-red-600 font-bold">Hapus</button></div>
+      </div>`
+    }
+  }).join(''):"<p>Belum ada artikel</p>"
+}
 async function editArtikelById(id){const {data} = await supabaseClient.from('artikel').select('*').eq('id', id).single();if(data){editIdArtikel.value=data.id;judul.value=data.judul;isi.value=data.isi;videoLink.value=data.video_link||"";document.getElementById('btnBatalEdit').classList.remove('hidden');showTab('artikel', document.querySelectorAll('.menu-btn')[1]);window.scrollTo(0,0);}}
 async function hapusArtikel(id){ bukaPopup(id, 'artikel', 'Yakin hapus artikel ini?') }
 
@@ -204,8 +314,7 @@ supabaseClient.from('tentang').select('*').eq('id',1).single().then(({data, erro
 });
 loadArtikel();loadAnggota();loadPengurus();
 
-// REGISTER SERVICE WORKER BEN ISO DIINSTALL
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/sw.js');
+  navigator.serviceWorker.register('/sw-admin.js');
 }
 </script></body></html>
