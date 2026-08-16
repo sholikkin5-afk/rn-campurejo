@@ -3,8 +3,8 @@
 <link rel="manifest" href="/manifest.json">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://apis.google.com/js/api.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- HAPUS SCRIPT LAMA, GAWE IKI TOK -->
+<script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
 </head>
 <body class="bg-gray-100">
 
@@ -126,62 +126,46 @@ const SCOPES = 'https://www.googleapis.com/auth/youtube.upload';
 let wilayahPilihan = "Belandongan Wetan";
 let idHapus = null;
 let tabelHapus = null;
-let tokenClient;
-let gisLoaded = false;
+let auth2;
 
-// TIMEOUT 10 DETIK BEN GAK STUCK
-setTimeout(() => {
-  if(!gisLoaded){
-    btnLoginYT.innerText = "❌ Gagal Load Google";
-    btnLoginYT.className = "bg-red-400 text-white px-4 py-2 rounded w-full font-bold";
-    loginStatus.innerText = "Status: Gagal. Cek domain di Google Cloud";
-  }
-}, 10000);
-
-function checkGisLoaded(){
-  if(typeof google!== 'undefined' && google.accounts && gapi){
-    gisLoaded = true;
-    btnLoginYT.disabled = false;
-    btnLoginYT.innerText = "🔐 Login with Google";
-    btnLoginYT.className = "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded w-full font-bold";
-    loginStatus.innerText = "Status: Siap Login";
-
-    gapi.load('client', async () => {
-      await gapi.client.init({ apiKey: API_KEY, discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest"] });
-    });
-    tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: '' });
-  } else {
-    setTimeout(checkGisLoaded, 500);
-  }
+function gapiLoaded() {
+  gapi.load('client:auth2', initGapiClient);
 }
-window.onload = checkGisLoaded;
+async function initGapiClient() {
+  await gapi.client.init({
+    apiKey: API_KEY,
+    clientId: CLIENT_ID,
+    scope: SCOPES,
+    discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest"]
+  });
+  auth2 = gapi.auth2.getAuthInstance();
+  btnLoginYT.disabled = false;
+  btnLoginYT.innerText = "🔐 Login with Google";
+  btnLoginYT.className = "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded w-full font-bold";
+  loginStatus.innerText = "Status: Siap Login";
+}
 
 async function handleAuthClick() {
-  if(!gisLoaded) return alert("Google API gagal dimuat. Cek domain di Google Cloud");
-
-  // HAPUS TOKEN LAMA BEN MUNCUL PILIHAN EMAIL
-  if(gapi.client.getToken()) google.accounts.oauth2.revoke(gapi.client.getToken().access_token);
-  gapi.client.setToken('');
-
   loginStatus.innerText = "Status: Lagi Login...";
   btnLoginYT.innerText = "⏳ Lagi Login...";
   btnLoginYT.disabled = true;
-  tokenClient.callback = async (resp) => {
-    if (resp.error!== undefined) {
-      loginStatus.innerText = "Status: Gagal Login - " + resp.error;
-      btnLoginYT.disabled = false;
-      btnLoginYT.innerText = "🔐 Login with Google";
-      return;
-    }
-    gapi.client.setToken(resp);
+
+  // IKI BEN MUNCUL PILIHAN EMAIL
+  const user = await auth2.signIn({prompt: 'select_account'});
+
+  if(user){
+    gapi.client.setToken(user.getAuthResponse());
     loginStatus.innerText = "Status: ✅ Login Sukses";
     loginStatus.className = "text-xs mt-1 text-green-600 font-bold";
     btnLoginYT.innerText = "✅ Sudah Login";
     btnLoginYT.className = "bg-green-600 text-white px-4 py-2 rounded w-full font-bold";
     btnUploadYT.disabled = false;
     btnUploadYT.className = "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded mb-3 w-full md:w-auto font-bold";
-  };
-  tokenClient.requestAccessToken({prompt: 'select_account', hint: ''});
+  } else {
+    loginStatus.innerText = "Status: Gagal Login";
+    btnLoginYT.disabled = false;
+    btnLoginYT.innerText = "🔐 Login with Google";
+  }
 }
 
 function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('overlay').classList.toggle('hidden'); }
@@ -193,15 +177,15 @@ function kompresGambar(file,callback){ const reader=new FileReader(); reader.onl
 async function uploadVideoYT(){
   const file = videoFile.files[0];
   if(!file) return alert("Pilih file video dulu!");
-  if(!gapi.client.getToken()) return alert("Login Google disik jo");
+  if(!auth2.isSignedIn.get()) return alert("Login Google disik jo");
   let dots = 0;
-  const loadingInterval = setInterval(() => { dots = (dots + 1) % 4; statusUploadYT.innerHTML = `⏳ Upload ke Youtube${'.repeat(dots)} <br> <span class="text-xs">Jangan tutup halaman. Ukuran: ${(file.size/1024/1024).toFixed(1)} MB</span>`; }, 500);
+  const loadingInterval = setInterval(() => { dots = (dots + 1) % 4; statusUploadYT.innerHTML = `⏳ Upload ke Youtube${'.'.repeat(dots)} <br> <span class="text-xs">Jangan tutup halaman. Ukuran: ${(file.size/1024/1024).toFixed(1)} MB</span>`; }, 500);
   const metadata = { snippet: { title: judul.value || "Video RNPPU Campurejo", description: "Dari Website RNPPU" }, status: { privacyStatus: "unlisted" } };
   const form = new FormData();
   form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
   form.append('video', file);
   try {
-    const res = await fetch("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status",{ method: 'POST', headers: new Headers({'Authorization': 'Bearer ' + gapi.client.getToken().access_token}), body: form });
+    const res = await fetch("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status",{ method: 'POST', headers: new Headers({'Authorization': 'Bearer ' + auth2.currentUser.get().getAuthResponse().access_token}), body: form });
     clearInterval(loadingInterval); const data = await res.json();
     if(res.ok){ const videoId = data.id; videoLink.value = "https://youtu.be/" + videoId; statusUploadYT.innerHTML = `✅ SUKSES! <br> Link: <a href="${videoLink.value}" target="_blank" class="text-blue-600 underline break-all">${videoLink.value}</a>`; statusUploadYT.className = "text-xs mb-3 font-bold text-green-600"; }
     else { statusUploadYT.innerText = "❌ Gagal: " + data.error.message; statusUploadYT.className = "text-xs mb-3 font-bold text-red-600"; }
