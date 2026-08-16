@@ -38,8 +38,11 @@
       <input type="hidden" id="editIdArtikel">
       <input id="judul" type="text" placeholder="Judul Artikel" class="w-full border p-3 rounded mb-3">
       <textarea id="isi" placeholder="Isi Artikel" class="w-full border p-3 rounded mb-3 h-40"></textarea>
-      <label class="font-bold">Upload Gambar</label><input type="file" id="gambar" accept="image/*" class="w-full p-2 mb-3 border rounded">
-      <p class="text-xs text-gray-500 mb-3">*Auto kompres max 1200px. Lewat 30 hari jadi arsip</p>
+
+      <label class="font-bold">Upload Gambar - BISA LEBIH DARI 1</label>
+      <input type="file" id="gambar" accept="image/*" class="w-full p-2 mb-1 border rounded" multiple>
+      <p class="text-xs text-gray-500 mb-2">*Tahan Ctrl/Cmd buat pilih banyak. Auto kompres max 1200px. Nanti dipisah koma otomatis</p>
+      <div id="previewGambar" class="flex gap-2 mb-3 flex-wrap"></div>
 
       <label class="font-bold">Link Video Youtube</label>
       <input id="videoLink" type="text" placeholder="https://youtu.be/5MD4H9_aXGM" class="w-full border p-3 rounded mb-1">
@@ -81,7 +84,6 @@
   </main>
 </div>
 
-<!-- POPUP LIAT ARTIKEL FULL -->
 <div id="popupArtikel" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4">
   <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4">
@@ -95,7 +97,6 @@
   </div>
 </div>
 
-<!-- POPUP KONFIRMASI HAPUS -->
 <div id="popupKonfirmasi" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
   <div class="bg-white p-6 rounded-xl shadow-2xl w-11/12 max-w-sm">
     <p id="teksKonfirmasi" class="text-lg font-bold mb-5">Yakin hapus?</p>
@@ -113,6 +114,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let wilayahPilihan = "Belandongan Wetan";
 let idHapus = null;
 let tabelHapus = null;
+let listUrlGambar = []; // BUAT SIMPEN BANYAK GAMBAR
 
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('-translate-x-full');
@@ -135,25 +137,42 @@ function setWilayah(w){
   if(w=="Belandongan Wetan")btnWetan.className="flex-1 p-3 rounded-lg font-bold bg-blue-700 text-white";
   if(w=="Belandongan Kulon")btnKulon.className="flex-1 p-3 rounded-lg font-bold bg-blue-700 text-white";
 }
-function kompresGambar(file,callback){
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const img=new Image();img.src=e.target.result;
-    img.onload=()=>{
-      const c=document.createElement('canvas');
-      let w=img.width,h=img.height;
-      if(w>1200){h*=1200/w;w=1200}
-      c.width=w;c.height=h;
-      c.getContext('2d').drawImage(img,0,0,w,h);
-      callback(c.toDataURL('image/jpeg',0.7).split(",")[1])
-    }
-  };
-  reader.readAsDataURL(file)
+function kompresGambar(file){
+  return new Promise(resolve=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();img.src=e.target.result;
+      img.onload=()=>{
+        const c=document.createElement('canvas');
+        let w=img.width,h=img.height;
+        if(w>1200){h*=1200/w;w=1200}
+        c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(c.toDataURL('image/jpeg',0.7).split(",")[1])
+      }
+    };
+    reader.readAsDataURL(file)
+  })
 }
 
+gambar.addEventListener('change', async (e)=>{
+  previewGambar.innerHTML = '';
+  listUrlGambar = [];
+  for(const file of e.target.files){
+    const blob = await kompresGambar(file);
+    const fileName = Date.now()+"_"+file.name;
+    statusArtikel.innerText = `⏳ Upload ${file.name}...`;
+    const {error} = await supabaseClient.storage.from('foto-artikel').upload(fileName, await (await fetch("data:image/jpeg;base64,"+blob)).blob());
+    if(error){ statusArtikel.innerText = "❌ Gagal Upload: " + error.message; return; }
+    const url = SUPABASE_URL+"/storage/v1/object/public/foto-artikel/"+fileName;
+    listUrlGambar.push(url);
+    previewGambar.innerHTML += `<img src="${url}" class="w-20 h-20 object-cover rounded">`;
+  }
+  statusArtikel.innerText = `✅ ${listUrlGambar.length} gambar siap`;
+})
+
 function bukaPopup(id, tabel, teks){
-  idHapus = id;
-  tabelHapus = tabel;
+  idHapus = id; tabelHapus = tabel;
   document.getElementById('teksKonfirmasi').innerText = teks;
   document.getElementById('popupKonfirmasi').classList.remove('hidden');
   document.getElementById('popupKonfirmasi').classList.add('flex');
@@ -161,8 +180,7 @@ function bukaPopup(id, tabel, teks){
 function tutupPopup(){
   document.getElementById('popupKonfirmasi').classList.add('hidden');
   document.getElementById('popupKonfirmasi').classList.remove('flex');
-  idHapus = null;
-  tabelHapus = null;
+  idHapus = null; tabelHapus = null;
 }
 document.getElementById('btnHapusFix').onclick = async function(){
   if(!idHapus) return;
@@ -173,19 +191,16 @@ document.getElementById('btnHapusFix').onclick = async function(){
   if(tabelHapus == 'pengurus') loadPengurus();
 }
 
-// FUNGSI POPUP LIAT ARTIKEL
 function bukaPopupArtikel(a){
   document.getElementById('popupJudul').innerText = a.judul;
   document.getElementById('popupIsi').innerText = a.isi;
   document.getElementById('popupTgl').innerText = 'Diposting: ' + new Date(a.tanggal).toLocaleDateString('id-ID');
-
   if(a.gambar_link){
-    document.getElementById('popupGambar').src = a.gambar_link;
+    document.getElementById('popupGambar').src = a.gambar_link.split(',')[0]; // TAMPIL 1 GAMBAR PERTAMA
     document.getElementById('popupGambar').classList.remove('hidden');
   } else {
     document.getElementById('popupGambar').classList.add('hidden');
   }
-
   if(a.video_link){
     const videoId = a.video_link.split('v=')[1] || a.video_link.split('youtu.be/')[1];
     document.getElementById('popupVideo').innerHTML = `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
@@ -193,7 +208,6 @@ function bukaPopupArtikel(a){
   } else {
     document.getElementById('popupVideo').classList.add('hidden');
   }
-
   document.getElementById('popupArtikel').classList.remove('hidden');
   document.getElementById('popupArtikel').classList.add('flex');
 }
@@ -209,23 +223,17 @@ async function saveTentang(){
 }
 
 async function saveArtikel(){
-  statusArtikel.innerText="⏳ Menyimpan...";
-  const id=editIdArtikel.value;const file=gambar.files[0];let url="";
-  if(file){
-    statusArtikel.innerText="⏳ Upload gambar...";
-    const blob=await new Promise(r=>kompresGambar(file,r));
-    const fileName=Date.now()+"_"+file.name;
-    const {error:errUpload} = await supabaseClient.storage.from('foto-artikel').upload(fileName,await(await fetch("data:image/jpeg;base64,"+blob)).blob());
-    if(errUpload){ statusArtikel.innerText="❌ Gagal Upload: " + errUpload.message; return; }
-    url=SUPABASE_URL+"/storage/v1/object/public/foto-artikel/"+fileName;
-  }
+  statusArtikel.innerText="⏳ Menyimpan ke DB...";
+  const id=editIdArtikel.value;
   const tglExp = new Date();tglExp.setDate(tglExp.getDate()+30);
-  const data={tanggal:new Date(),judul:judul.value,isi:isi.value,gambar_link:url,video_link:videoLink.value,durasi:"30 Hari",tgl_expired:tglExp};
+  // GABUNG KABEH URL GAMBAR PAKAI KOMA
+  const urlGabungan = listUrlGambar.join(',');
+  const data={tanggal:new Date(),judul:judul.value,isi:isi.value,gambar_link:urlGabungan,video_link:videoLink.value,durasi:"30 Hari",tgl_expired:tglExp};
   const res = id? await supabaseClient.from('artikel').update(data).eq('id',id) : await supabaseClient.from('artikel').insert([data]);
   statusArtikel.innerText=res.error?"❌ Gagal DB: " + res.error.message:"✅ Artikel Tersimpan - Jadi arsip tgl " + tglExp.toLocaleDateString('id-ID');
   if(!res.error){ resetFormArtikel();loadArtikel(); }
 }
-function resetFormArtikel(){editIdArtikel.value="";judul.value="";isi.value="";gambar.value="";videoLink.value="";document.getElementById('btnBatalEdit').classList.add('hidden');}
+function resetFormArtikel(){editIdArtikel.value="";judul.value="";isi.value="";gambar.value="";videoLink.value="";previewGambar.innerHTML="";listUrlGambar=[];document.getElementById('btnBatalEdit').classList.add('hidden');}
 
 async function loadArtikel(){
   const {data}=await supabaseClient.from('artikel').select('*').order('tanggal',{ascending:false});
@@ -233,13 +241,11 @@ async function loadArtikel(){
   listArtikel.innerHTML=data&&data.length>0?data.map(a=>{
     const kadaluarsa = new Date(a.tgl_expired) < sekarang;
     if(kadaluarsa){
-      // LEWAT 30 HARI: MUNCUL JUDUL TOK + WARNA ABU + BISA DIKLIK
       return `<div onclick='bukaPopupArtikel(${JSON.stringify(a)})' class="p-3 border rounded-lg bg-gray-100 cursor-pointer hover:bg-gray-200">
         <span class="font-bold text-gray-500">📦 ${a.judul}</span>
         <p class="text-xs text-gray-400">Arsip - Klik untuk lihat</p>
       </div>`
     } else {
-      // BELUM 30 HARI: NORMAL
       const sisaHari = Math.ceil((new Date(a.tgl_expired) - sekarang) / (1000*60*60*24));
       return `<div class="p-3 border rounded-lg flex justify-between items-center">
         <div>
@@ -251,7 +257,20 @@ async function loadArtikel(){
     }
   }).join(''):"<p>Belum ada artikel</p>"
 }
-async function editArtikelById(id){const {data} = await supabaseClient.from('artikel').select('*').eq('id', id).single();if(data){editIdArtikel.value=data.id;judul.value=data.judul;isi.value=data.isi;videoLink.value=data.video_link||"";document.getElementById('btnBatalEdit').classList.remove('hidden');showTab('artikel', document.querySelectorAll('.menu-btn')[1]);window.scrollTo(0,0);}}
+async function editArtikelById(id){
+  const {data} = await supabaseClient.from('artikel').select('*').eq('id', id).single();
+  if(data){
+    editIdArtikel.value=data.id;
+    judul.value=data.judul;
+    isi.value=data.isi;
+    videoLink.value=data.video_link||"";
+    listUrlGambar = data.gambar_link? data.gambar_link.split(',') : [];
+    previewGambar.innerHTML = listUrlGambar.map(u=>`<img src="${u}" class="w-20 h-20 object-cover rounded">`).join('');
+    document.getElementById('btnBatalEdit').classList.remove('hidden');
+    showTab('artikel', document.querySelectorAll('.menu-btn')[1]);
+    window.scrollTo(0,0);
+  }
+}
 async function hapusArtikel(id){ bukaPopup(id, 'artikel', 'Yakin hapus artikel ini?') }
 
 async function saveAnggota(){const id=editIdAnggota.value;const data={nama:namaA.value,alamat:alamatA.value,kapal:kapalA.value,wilayah:wilayahPilihan};const res=id? await supabaseClient.from('anggota').update(data).eq('id',id) : await supabaseClient.from('anggota').insert([data]);statusAnggota.innerText=res.error?"❌ Gagal: " + res.error.message:"✅ Anggota Tersimpan";if(!res.error){resetFormAnggota();loadAnggota();}}

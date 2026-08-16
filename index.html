@@ -6,6 +6,11 @@
 <style>
   body { font-size: 13px; }
   @media (min-width: 768px) { body { font-size: 14px; } }
+  /* Scroll munggah mudun */
+  #artikelList { max-height: 70vh; overflow-y: auto; }
+  /* Scrollbar ben apik */
+  #artikelList::-webkit-scrollbar { width: 6px; }
+  #artikelList::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 10px; }
 </style>
 </head>
 <body class="bg-gray-50 font-sans">
@@ -30,7 +35,7 @@
 
   <section>
     <h3 class="text-xl md:text-2xl font-bold text-center mb-4 text-blue-900" data-aos="fade-up">Berita & Kegiatan</h3>
-    <div id="artikelList" class="grid md:grid-cols-3 gap-4">
+    <div id="artikelList" class="grid md:grid-cols-3 gap-4 pr-1">
       <div class="bg-white rounded-xl shadow animate-pulse h-72"></div>
       <div class="bg-white rounded-xl shadow animate-pulse h-72"></div>
       <div class="bg-white rounded-xl shadow animate-pulse h-72"></div>
@@ -57,17 +62,26 @@
   </section>
 </main>
 
-<div id="modalArtikel" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden items-center justify-center p-3">
-  <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-    <div class="sticky top-0 bg-white p-3 border-b flex justify-between items-center">
-      <h3 id="modalJudul" class="text-lg md:text-xl font-bold text-blue-900"></h3>
-      <button onclick="tutupModal()" class="text-2xl text-gray-500 hover:text-red-500">×</button>
+<!-- MODAL FULL LAYAR + SLIDER GAMBAR -->
+<div id="modalArtikel" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden items-center justify-center p-0">
+  <div class="bg-white rounded-none md:rounded-xl shadow-2xl w-full h-full md:max-w-4xl md:w-full md:h-auto md:max-h-[95vh] overflow-y-auto relative">
+    <div class="sticky top-0 bg-white p-3 border-b flex justify-between items-center z-10">
+      <h3 id="modalJudul" class="text-lg md:text-2xl font-bold text-blue-900 pr-8"></h3>
+      <button onclick="tutupModal()" class="text-3xl text-gray-500 hover:text-red-500 absolute right-3 top-2">×</button>
     </div>
-    <img id="modalGambar" src="" class="w-full h-52 object-cover hidden">
+
+    <!-- SLIDER GAMBAR -->
+    <div id="modalGambarContainer" class="relative w-full bg-black hidden">
+      <img id="modalGambar" src="" class="w-full h-[40vh] md:h-[60vh] object-contain bg-black">
+      <button id="prevGambar" onclick="gantiGambar(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white text-3xl font-bold p-2 rounded-full hover:bg-black/80">‹</button>
+      <button id="nextGambar" onclick="gantiGambar(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white text-3xl font-bold p-2 rounded-full hover:bg-black/80">›</button>
+      <p id="indikatorGambar" class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full"></p>
+    </div>
+
     <div id="modalVideo" class="px-4 pt-3"></div>
-    <div class="p-4">
-      <p id="modalTanggal" class="text-xs text-gray-500 mb-2"></p>
-      <p id="modalIsi" class="text-sm text-gray-700 whitespace-pre-line leading-relaxed"></p>
+    <div class="p-4 md:p-6">
+      <p id="modalTanggal" class="text-xs text-gray-500 mb-3"></p>
+      <p id="modalIsi" class="text-sm md:text-base text-gray-700 whitespace-pre-line leading-relaxed"></p>
 
       <div class="border-t mt-4 pt-3">
         <button id="btnLike" onclick="likeArtikel()" class="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg transition">❤️ <span id="jmlLike">0</span> Suka</button>
@@ -96,7 +110,9 @@ const SUPABASE_KEY = "sb_publishable_Xg3DLbSsRFTsU5ZjxIylkA_JP6pUpSK";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const hariIni = new Date().toISOString().split('T')[0];
 let artikelAktif = null;
-let tampilkanArsip = false; // DEFAULT: MUNG TAMPIL AKTIF
+let tampilkanArsip = false;
+let gambarList = [];
+let gambarIndex = 0;
 
 function togglePengurus(){
   const wrapper = document.getElementById('pengurusWrapper');
@@ -128,15 +144,13 @@ async function loadAll(){
 }
 
 async function loadArtikel(cari=""){
-  // LOGIKA BARU: LEK ARSIP OFF MUNG AMBIL AKTIF. LEK ON AMBIL KABEH
   let query = supabaseClient.from('artikel').select('*');
   if(!tampilkanArsip) query = query.gte('tgl_expired',hariIni);
-  query = query.order('tanggal',{ascending:false});
+  query = query.order('tanggal',{ascending:false}).limit(3); // BATASI 3 ARTIKEL TOK
   if(cari) query = query.ilike('judul',`%${cari}%`);
   const {data:artikel, error} = await query;
   if(error){ artikelList.innerHTML = `<p class='col-span-full text-center text-red-500'>Gagal load: ${error.message}</p>`; return; }
 
-  // AMBIL JUMLAH LIKE SAK GUS
   const artikelIds = artikel.map(a=>a.id);
   const {data:likes} = artikelIds.length > 0? await supabaseClient.from('likes').select('artikel_id').in('artikel_id', artikelIds) : {data:[]};
   const likeCount = {};
@@ -145,13 +159,11 @@ async function loadArtikel(cari=""){
   artikelList.innerHTML = artikel && artikel.length > 0? artikel.map(a=>{
     const kadaluarsa = new Date(a.tgl_expired) < new Date();
     if(kadaluarsa){
-      // MODE ARSIP: KARTU KECIL JUDUL TOK
       return `<div onclick="bukaModal(${a.id})" class="p-3 bg-gray-100 rounded-lg border-l-4 border-orange-400 cursor-pointer hover:bg-gray-200 transition" data-aos="fade-up">
         <span class="font-bold text-gray-600 text-sm">📦 ${a.judul}</span>
         <p class="text-[10px] text-gray-500">Arsip - ${new Date(a.tanggal).toLocaleDateString('id-ID')} - Klik untuk baca</p>
       </div>`
     } else {
-      // MODE AKTIF: KARTU NORMAL
       return `<div onclick="bukaModal(${a.id})" class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition cursor-pointer" data-aos="zoom-in">
         <img src="${a.gambar_link}" onerror="this.src='https://placehold.co/400x200'" class="w-full h-40 object-cover">
         <div class="p-3">
@@ -175,20 +187,51 @@ async function loadAnggota(wilayah){
   anggotaList.innerHTML = data && data.length > 0? data.map(a=>`<div class="bg-gray-100 p-3 rounded-lg border-l-4 border-blue-600"><p class="font-bold text-sm">${a.nama}</p><p class="text-xs">${a.alamat}</p><p class="text-[10px] text-blue-700 mt-1">🚤 ${a.kapal}</p></div>`).join('') : "<p class='text-center col-span-full text-gray-500 text-sm'>Belum ada data anggota</p>";
 }
 
+// FUNGSI SLIDER
+function gantiGambar(arah){
+  gambarIndex += arah;
+  if(gambarIndex < 0) gambarIndex = gambarList.length - 1;
+  if(gambarIndex >= gambarList.length) gambarIndex = 0;
+  modalGambar.src = gambarList[gambarIndex];
+  indikatorGambar.innerText = `${gambarIndex + 1} / ${gambarList.length}`;
+}
+
 async function bukaModal(id){
   const {data, error} = await supabaseClient.from('artikel').select('*').eq('id',id).single();
   if(error){ alert("Gagal load artikel: " + error.message); return; }
   artikelAktif = data;
   modalJudul.innerText = data.judul;
-  if(data.gambar_link){ modalGambar.src = data.gambar_link; modalGambar.classList.remove('hidden'); } else { modalGambar.classList.add('hidden'); }
+
+  // LOGIKA GAMBAR BANYAK: PISAH KAN MAU KANTOI ','
+  gambarList = [];
+  if(data.gambar_link){
+    gambarList = data.gambar_link.split(',').map(s=>s.trim()).filter(s=>s);
+  }
+
+  if(gambarList.length > 0){
+    modalGambarContainer.classList.remove('hidden');
+    gambarIndex = 0;
+    modalGambar.src = gambarList[0];
+    indikatorGambar.innerText = `1 / ${gambarList.length}`;
+    prevGambar.classList.toggle('hidden', gambarList.length <= 1);
+    nextGambar.classList.toggle('hidden', gambarList.length <= 1);
+  } else {
+    modalGambarContainer.classList.add('hidden');
+  }
+
   modalTanggal.innerText = new Date(data.tanggal).toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
   modalIsi.innerText = data.isi;
 
-  // KODE YOUTUBE
   if(data.video_link){
-    let videoId = data.video_link.split('youtu.be/')[1] || data.video_link.split('v=')[1];
-    if(videoId) videoId = videoId.split('&')[0];
-    modalVideo.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" class="w-full h-52 md:h-80 rounded-lg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    let videoId = '';
+    if(data.video_link.includes('shorts/')){
+        videoId = data.video_link.split('shorts/')[1].split('?')[0];
+    } else if(data.video_link.includes('youtu.be/')){
+        videoId = data.video_link.split('youtu.be/')[1].split('?')[0];
+    } else {
+        videoId = data.video_link.split('v=')[1].split('&')[0];
+    }
+    modalVideo.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" class="w-full h-52 md:h-96 rounded-lg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
   } else {
     modalVideo.innerHTML = '';
   }
@@ -201,7 +244,6 @@ function tutupModal(){ modalArtikel.classList.add('hidden'); modalArtikel.classL
 async function loadLike(){
   const {data, error} = await supabaseClient.from('likes').select('*').eq('artikel_id',artikelAktif.id);
   if(!error) jmlLike.innerText = data.length;
-
   const key = 'liked_'+artikelAktif.id;
   if(localStorage.getItem(key)){
     btnLike.className = "flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg bg-red-500 text-white cursor-not-allowed";
@@ -215,15 +257,13 @@ async function loadLike(){
 async function likeArtikel(){
   const key = 'liked_'+artikelAktif.id;
   if(localStorage.getItem(key)) return alert("Wes tau like iki mas 😁");
-
   const {error} = await supabaseClient.from('likes').insert([{artikel_id:artikelAktif.id}]);
   if(error){ alert("Gagal like: " + error.message); return; }
   localStorage.setItem(key, 'true');
   loadLike();
-  loadArtikel(document.getElementById('searchArtikel').value); // Refresh jumlah like neng kartu
+  loadArtikel(document.getElementById('searchArtikel').value);
 }
 
-// UPGRADE KOMENTAR: TAK TAMBAHI ERROR HANDLING + LOADING
 async function loadKomentar(){
   listKomentar.innerHTML = "<p class='text-xs text-gray-400'>Loading komentar...</p>";
   const {data, error} = await supabaseClient.from('komentar').select('*').eq('artikel_id',artikelAktif.id).order('tanggal',{ascending:false});
@@ -233,7 +273,7 @@ async function loadKomentar(){
 async function kirimKomentar(){
   if(!namaKomen.value.trim() ||!isiKomen.value.trim()) return alert('Nama dan komentar wajib diisi');
   const {error} = await supabaseClient.from('komentar').insert([{tanggal:new Date(), artikel_id:artikelAktif.id, nama:namaKomen.value.trim(), komentar:isiKomen.value.trim()}]);
-  if(error){ alert("Gagal kirim komentar: " + error.message + "\nCek jeneng tabel 'komentar' neng Supabase"); return; }
+  if(error){ alert("Gagal kirim komentar: " + error.message); return; }
   namaKomen.value=""; isiKomen.value=""; loadKomentar();
 }
 
