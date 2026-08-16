@@ -1,7 +1,8 @@
 {
-  "name": "Admin RNPPU",
-  "short_name": "RNPPU",
-  "start_url": "/",
+  "name": "Admin RNPPU Campurejo",
+  "short_name": "Admin RNPPU",
+  "start_url": "/admin.html",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#1e3a8a",
   "theme_color": "#1e3a8a",
