@@ -4,103 +4,135 @@
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <style>
-  body { font-size: 13px; }
-  @media (min-width: 768px) { body { font-size: 14px; } }
-  /* Scroll munggah mudun */
+  body { font-size: 12px; }
+  @media (min-width: 768px) { body { font-size: 13px; }
   #artikelList { max-height: 70vh; overflow-y: auto; }
-  /* Scrollbar ben apik */
   #artikelList::-webkit-scrollbar { width: 6px; }
   #artikelList::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 10px; }
+  #pengurusList, #anggotaList {
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 6px;
+  }
+  #pengurusList::-webkit-scrollbar, #anggotaList::-webkit-scrollbar { width: 5px; }
+  #pengurusList::-webkit-scrollbar-thumb, #anggotaList::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 10px; }
 </style>
 </head>
 <body class="bg-gray-50 font-sans">
 
 <header class="bg-gradient-to-r from-blue-900 to-blue-700 text-white p-3 shadow-lg sticky top-0 z-50">
   <div class="max-w-6xl mx-auto flex items-center gap-3">
-    <img src="logo-rn.jpg" onerror="this.src='https://placehold.co/48x48/1e3a8a/ffffff?text=RN'" class="w-12 h-12 bg-white rounded-full p-1 object-cover border-2 border-white">
+    <img src="logo-rn.jpg" onerror="this.src='https://placehold.co/48x48/1e3a8a/ffffff?text=RN'" class="w-10 h-10 bg-white rounded-full p-1 object-cover border-2 border-white">
     <div>
-      <h2 class="text-base md:text-lg font-bold leading-tight">RUKUN NELAYAN PUPANTARA CAMPUREJO PANCENG GRESIK</h2>
-      <p class="text-[10px] opacity-80">BADAN HUKUM: AHU-0002915.AH.01.07.TAHUN 2026</p>
+      <h2 class="text-sm md:text-base font-bold leading-tight">RUKUN NELAYAN PUPANTARA CAMPUREJO PANCENG GRESIK</h2>
+      <p class="text-[9px] opacity-80">BADAN HUKUM: AHU-0002915.AH.01.07.TAHUN 2026</p>
     </div>
   </div>
 </header>
 
 <main class="max-w-6xl mx-auto p-3">
-  <section id="sambutan" class="bg-white p-4 rounded-xl shadow-lg my-4 border-l-4 border-blue-700" data-aos="fade-up"></section>
+  <section id="sambutan" class="bg-white p-3 rounded-xl shadow-lg my-4 border-l-4 border-blue-700" data-aos="fade-up"></section>
 
-  <div class="my-4 flex gap-2" data-aos="fade-up">
-    <input type="text" id="searchArtikel" placeholder="🔍 Cari berita..." class="flex-1 p-2.5 text-sm border-2 border-gray-200 rounded-lg focus:border-blue-500 outline-none">
-    <button id="btnArsip" onclick="toggleArsip()" class="px-4 py-2 text-sm rounded-lg font-bold bg-gray-200 text-gray-700">Tampil Arsip</button>
+  <div class="my-3 flex gap-2" data-aos="fade-up">
+    <input type="text" id="searchArtikel" placeholder="🔍 Cari berita..." class="flex-1 p-2 text-xs border-2 border-gray-200 rounded-lg focus:border-blue-500 outline-none">
+    <button id="btnArsip" onclick="toggleArsip()" class="px-3 py-2 text-xs rounded-lg font-bold bg-gray-200 text-gray-700">Tampil Arsip</button>
   </div>
 
   <section>
-    <h3 class="text-xl md:text-2xl font-bold text-center mb-4 text-blue-900" data-aos="fade-up">Berita & Kegiatan</h3>
-    <div id="artikelList" class="grid md:grid-cols-3 gap-4 pr-1">
-      <div class="bg-white rounded-xl shadow animate-pulse h-72"></div>
-      <div class="bg-white rounded-xl shadow animate-pulse h-72"></div>
-      <div class="bg-white rounded-xl shadow animate-pulse h-72"></div>
+    <h3 class="text-lg md:text-xl font-bold text-center mb-3 text-blue-900" data-aos="fade-up">Berita & Kegiatan</h3>
+    <div id="artikelList" class="grid md:grid-cols-3 gap-3 pr-1">
+      <div class="bg-white rounded-xl shadow animate-pulse h-64"></div>
+      <div class="bg-white rounded-xl shadow animate-pulse h-64"></div>
+      <div class="bg-white rounded-xl shadow animate-pulse h-64"></div>
     </div>
   </section>
 
-<section class="bg-white p-4 rounded-xl shadow-lg my-6" data-aos="fade-up">
+<section class="bg-white p-3 rounded-xl shadow-lg my-5" data-aos="fade-up">
   <button onclick="togglePengurus()" class="w-full flex justify-between items-center">
-    <h3 class="text-xl md:text-2xl font-bold text-blue-900">Struktur Pengurus</h3>
-    <span id="iconPengurus" class="text-2xl text-blue-900">+</span>
+    <h3 class="text-lg md:text-xl font-bold text-blue-900">Struktur Pengurus</h3>
+    <span id="iconPengurus" class="text-xl text-blue-900">+</span>
   </button>
-  <div id="pengurusWrapper" class="hidden mt-4">
-    <div id="pengurusList" class="space-y-2"></div>
+  <div id="pengurusWrapper" class="hidden mt-3">
+    <div id="pengurusList" class="space-y-1"></div>
+    <button onclick="bukaModalSemuaPengurus()" class="text-[10px] text-blue-600 font-bold text-center block w-full mt-2 hover:underline">Lihat Semua Pengurus →</button>
   </div>
 </section>
 
-  <section class="bg-white p-4 rounded-xl shadow-lg my-6" data-aos="fade-up">
-    <h3 class="text-xl md:text-2xl font-bold text-center mb-4 text-blue-900">Data Anggota</h3>
-    <div class="flex justify-center gap-3 mb-4">
-      <button id="btnWetan" onclick="loadAnggota('Belandongan Wetan')" class="px-4 py-2 text-sm rounded-lg font-bold transition">Belandongan Wetan</button>
-      <button id="btnKulon" onclick="loadAnggota('Belandongan Kulon')" class="px-4 py-2 text-sm rounded-lg font-bold transition">Belandongan Kulon</button>
+  <section class="bg-white p-3 rounded-xl shadow-lg my-5" data-aos="fade-up">
+    <h3 class="text-lg md:text-xl font-bold text-center mb-3 text-blue-900">Data Anggota</h3>
+    <div class="flex justify-center gap-2 mb-3">
+      <button id="btnWetan" onclick="loadAnggota('Belandongan Wetan')" class="px-3 py-1.5 text-xs rounded-lg font-bold transition">Belandongan Wetan</button>
+      <button id="btnKulon" onclick="loadAnggota('Belandongan Kulon')" class="px-3 py-1.5 text-xs rounded-lg font-bold transition">Belandongan Kulon</button>
     </div>
-    <div id="anggotaList" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+    <div id="anggotaList" class="grid grid-cols-1 md:grid-cols-3 gap-2"></div>
+    <button onclick="bukaModalSemuaAnggota()" class="text-[10px] text-blue-600 font-bold text-center block w-full mt-2 hover:underline">Lihat Semua Anggota →</button>
   </section>
 </main>
 
-<!-- MODAL FULL LAYAR + SLIDER GAMBAR -->
 <div id="modalArtikel" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden items-center justify-center p-0">
   <div class="bg-white rounded-none md:rounded-xl shadow-2xl w-full h-full md:max-w-4xl md:w-full md:h-auto md:max-h-[95vh] overflow-y-auto relative">
     <div class="sticky top-0 bg-white p-3 border-b flex justify-between items-center z-10">
-      <h3 id="modalJudul" class="text-lg md:text-2xl font-bold text-blue-900 pr-8"></h3>
-      <button onclick="tutupModal()" class="text-3xl text-gray-500 hover:text-red-500 absolute right-3 top-2">×</button>
+      <h3 id="modalJudul" class="text-base md:text-xl font-bold text-blue-900 pr-8"></h3>
+      <button onclick="tutupModal()" class="text-2xl text-gray-500 hover:text-red-500 absolute right-3 top-2">×</button>
     </div>
-
+    
     <!-- SLIDER GAMBAR -->
     <div id="modalGambarContainer" class="relative w-full bg-black hidden">
       <img id="modalGambar" src="" class="w-full h-[40vh] md:h-[60vh] object-contain bg-black">
-      <button id="prevGambar" onclick="gantiGambar(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white text-3xl font-bold p-2 rounded-full hover:bg-black/80">‹</button>
-      <button id="nextGambar" onclick="gantiGambar(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white text-3xl font-bold p-2 rounded-full hover:bg-black/80">›</button>
-      <p id="indikatorGambar" class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full"></p>
+      <button id="prevGambar" onclick="gantiGambar(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white text-2xl font-bold p-2 rounded-full hover:bg-black/80">‹</button>
+      <button id="nextGambar" onclick="gantiGambar(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white text-2xl font-bold p-2 rounded-full hover:bg-black/80">›</button>
+      <p id="indikatorGambar" class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white text-[10px] px-3 py-1 rounded-full"></p>
     </div>
 
-    <div id="modalVideo" class="px-4 pt-3"></div>
-    <div class="p-4 md:p-6">
-      <p id="modalTanggal" class="text-xs text-gray-500 mb-3"></p>
-      <p id="modalIsi" class="text-sm md:text-base text-gray-700 whitespace-pre-line leading-relaxed"></p>
+    <!-- SLIDER VIDEO BARU -->
+    <div id="modalVideoContainer" class="relative w-full bg-black px-3 pt-3 hidden">
+      <div id="modalVideo"></div>
+      <button id="prevVideo" onclick="gantiVideo(-1)" class="absolute left-5 top-1/2 -translate-y-1/2 bg-black/50 text-white text-2xl font-bold p-2 rounded-full hover:bg-black/80">‹</button>
+      <button id="nextVideo" onclick="gantiVideo(1)" class="absolute right-5 top-1/2 -translate-y-1/2 bg-black/50 text-white text-2xl font-bold p-2 rounded-full hover:bg-black/80">›</button>
+      <p id="indikatorVideo" class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/60 text-white text-[10px] px-3 py-1 rounded-full"></p>
+    </div>
 
-      <div class="border-t mt-4 pt-3">
-        <button id="btnLike" onclick="likeArtikel()" class="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg transition">❤️ <span id="jmlLike">0</span> Suka</button>
-        <h3 class="font-bold text-base mt-4 mb-2">Komentar</h3>
-        <div id="listKomentar" class="space-y-2 mb-3 max-h-52 overflow-y-auto"></div>
-        <input id="namaKomen" type="text" placeholder="Nama anda" class="w-full border p-2 text-sm rounded mb-2">
-        <textarea id="isiKomen" placeholder="Tulis komentar..." class="w-full border p-2 text-sm rounded mb-2 h-16"></textarea>
-        <button onclick="kirimKomentar()" class="bg-blue-600 text-white px-4 py-2 text-sm rounded-lg font-bold">Kirim</button>
+    <div class="p-3 md:p-5">
+      <p id="modalTanggal" class="text-[10px] text-gray-500 mb-2"></p>
+      <p id="modalIsi" class="text-xs md:text-sm text-gray-700 whitespace-pre-line leading-relaxed"></p>
+      <div class="border-t mt-3 pt-3">
+        <button id="btnLike" onclick="likeArtikel()" class="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg transition">❤️ <span id="jmlLike">0</span> Suka</button>
+        <h3 class="font-bold text-sm mt-3 mb-2">Komentar</h3>
+        <div id="listKomentar" class="space-y-1 mb-3 max-h-52 overflow-y-auto"></div>
+        <input id="namaKomen" type="text" placeholder="Nama anda" class="w-full border p-1.5 text-xs rounded mb-2">
+        <textarea id="isiKomen" placeholder="Tulis komentar..." class="w-full border p-1.5 text-xs rounded mb-2 h-14"></textarea>
+        <button onclick="kirimKomentar()" class="bg-blue-600 text-white px-3 py-1.5 text-xs rounded-lg font-bold">Kirim</button>
       </div>
     </div>
   </div>
 </div>
 
-<footer class="bg-gray-900 text-white p-5 mt-8">
-  <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-4 text-center md:text-left text-sm">
-    <div><p class="font-bold mb-1">Sekretariat</p><p>Jl. Pantai Utara RT 001 RW 001 Campurejo Panceng Gresik 61156 Jawa Timur</p></div>
-    <div><p class="font-bold mb-2">Hubungi Kami</p><div class="flex justify-center md:justify-start gap-4"><a href="https://wa.me/6281328282446" target="_blank" class="hover:scale-110 transition"><img src="wa-icon.png" alt="WhatsApp" class="w-10 h-10 rounded-2xl"></a><a href="mailto:rncamploenk@gmail.com" target="_blank" class="hover:scale-110 transition"><img src="gmail-icon.png" alt="Gmail" class="w-10 h-10 rounded-2xl"></a></div></div>
+<div id="modalSemuaPengurus" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto relative p-4">
+    <button onclick="tutupModalSemuaPengurus()" class="text-2xl text-gray-500 hover:text-red-500 absolute right-3 top-2">×</button>
+    <h3 class="text-lg font-bold text-blue-900 mb-3 border-b pb-2">Semua Struktur Pengurus</h3>
+    <div id="semuaPengurusList" class="space-y-1"></div>
   </div>
-  <p class="text-[10px] text-center mt-4 opacity-50">© 2026 RNPPU Campurejo</p>
+</div>
+
+<div id="modalSemuaAnggota" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[80vh] overflow-y-auto relative p-4">
+    <button onclick="tutupModalSemuaAnggota()" class="text-2xl text-gray-500 hover:text-red-500 absolute right-3 top-2">×</button>
+    <h3 class="text-lg font-bold text-blue-900 mb-3 border-b pb-2">Semua Data Anggota</h3>
+    <div class="flex justify-center gap-2 mb-3 border-b">
+      <button id="tabModalWetan" onclick="loadSemuaAnggota('Belandongan Wetan')" class="px-4 py-2 text-xs font-bold border-b-2">Belandongan Wetan</button>
+      <button id="tabModalKulon" onclick="loadSemuaAnggota('Belandongan Kulon')" class="px-4 py-2 text-xs font-bold border-b-2">Belandongan Kulon</button>
+    </div>
+    <div id="semuaAnggotaList" class="grid grid-cols-1 md:grid-cols-2 gap-2"></div>
+  </div>
+</div>
+
+<footer class="bg-gray-900 text-white p-4 mt-6">
+  <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-3 text-center md:text-left text-xs">
+    <div><p class="font-bold mb-1">Sekretariat</p><p>Jl. Pantai Utara RT 001 RW 001 Campurejo Panceng Gresik 61156 Jawa Timur</p></div>
+    <div><p class="font-bold mb-2">Hubungi Kami</p><div class="flex justify-center md:justify-start gap-3"><a href="https://wa.me/6281328282446" target="_blank" class="hover:scale-110 transition"><img src="wa-icon.png" alt="WhatsApp" class="w-8 h-8 rounded-xl"></a><a href="mailto:rncamploenk@gmail.com" target="_blank" class="hover:scale-110 transition"><img src="gmail-icon.png" alt="Gmail" class="w-8 h-8 rounded-xl"></a></div></div>
+  </div>
+  <p class="text-[9px] text-center mt-3 opacity-50">© 2026 RNPPU Campurejo</p>
 </footer>
 
 <script>
@@ -113,6 +145,8 @@ let artikelAktif = null;
 let tampilkanArsip = false;
 let gambarList = [];
 let gambarIndex = 0;
+let videoList = []; // BARU
+let videoIndex = 0; // BARU
 
 function togglePengurus(){
   const wrapper = document.getElementById('pengurusWrapper');
@@ -124,32 +158,26 @@ function togglePengurus(){
 function toggleArsip(){
   tampilkanArsip =!tampilkanArsip;
   btnArsip.innerText = tampilkanArsip? "Sembunyikan Arsip" : "Tampil Arsip";
-  btnArsip.className = tampilkanArsip? "px-4 py-2 text-sm rounded-lg font-bold bg-orange-500 text-white" : "px-4 py-2 text-sm rounded-lg font-bold bg-gray-200 text-gray-700";
+  btnArsip.className = tampilkanArsip? "px-3 py-2 text-xs rounded-lg font-bold bg-orange-500 text-white" : "px-3 py-2 text-xs rounded-lg font-bold bg-gray-200 text-gray-700";
   loadArtikel(document.getElementById('searchArtikel').value);
 }
 
 async function loadAll(){
   const {data:tentang, error:errTentang} = await supabaseClient.from('tentang').select('*').eq('id',1).single();
-  if(!errTentang && tentang){ sambutan.innerHTML = `<h3 class="text-lg font-bold mb-2 text-blue-900">Sambutan Ketua</h3><p class="text-sm text-gray-700 mb-3">${tentang.tentang}</p><div class="bg-blue-50 p-3 rounded-lg text-sm"><p class="mb-1"><b>Visi:</b> ${tentang.visi}</p><p><b>Misi:</b> ${tentang.misi}</p></div>`; }
-
+  if(!errTentang && tentang){ sambutan.innerHTML = `<h3 class="text-base font-bold mb-2 text-blue-900">Sambutan Ketua</h3><p class="text-xs text-gray-700 mb-2">${tentang.tentang}</p><div class="bg-blue-50 p-2 rounded-lg text-xs"><p class="mb-1"><b>Visi:</b> ${tentang.visi}</p><p><b>Misi:</b> ${tentang.misi}</p></div>`; }
   loadArtikel();
-
-  const {data:pengurus, error:errPengurus} = await supabaseClient.from('pengurus').select('*').order('id');
-  if(!errPengurus){ pengurusList.innerHTML = pengurus && pengurus.length > 0? pengurus.map(p=>`
-      <div class="flex justify-between items-center p-3 bg-gray-50 hover:bg-blue-50 rounded-lg border-l-4 border-blue-600 transition">
-        <div><p class="font-bold text-sm text-blue-900">${p.nama}</p><p class="text-xs text-gray-600">${p.jabatan}</p></div>
-      </div>
-    `).join('') : "<p class='text-sm text-center text-gray-500'>Belum ada data</p>"; }
+  const {data:pengurus, error:errPengurus} = await supabaseClient.from('pengurus').select('*').order('id').limit(10);
+  if(!errPengurus){ pengurusList.innerHTML = pengurus && pengurus.length > 0? pengurus.map(p=>`<div class="flex justify-between items-center p-2 bg-gray-50 hover:bg-blue-50 rounded-lg border-l-2 border-blue-600 transition"><div><p class="font-bold text-xs text-blue-900">${p.nama}</p><p class="text-[10px] text-gray-600">${p.jabatan}</p></div></div>`).join('') : "<p class='text-xs text-center text-gray-500'>Belum ada data</p>"; }
   loadAnggota('Belandongan Wetan');
 }
 
 async function loadArtikel(cari=""){
   let query = supabaseClient.from('artikel').select('*');
   if(!tampilkanArsip) query = query.gte('tgl_expired',hariIni);
-  query = query.order('tanggal',{ascending:false}).limit(3); // BATASI 3 ARTIKEL TOK
+  query = query.order('tanggal',{ascending:false}).limit(3);
   if(cari) query = query.ilike('judul',`%${cari}%`);
   const {data:artikel, error} = await query;
-  if(error){ artikelList.innerHTML = `<p class='col-span-full text-center text-red-500'>Gagal load: ${error.message}</p>`; return; }
+  if(error){ artikelList.innerHTML = `<p class='col-span-full text-center text-red-500 text-xs'>Gagal load: ${error.message}</p>`; return; }
 
   const artikelIds = artikel.map(a=>a.id);
   const {data:likes} = artikelIds.length > 0? await supabaseClient.from('likes').select('artikel_id').in('artikel_id', artikelIds) : {data:[]};
@@ -158,36 +186,41 @@ async function loadArtikel(cari=""){
 
   artikelList.innerHTML = artikel && artikel.length > 0? artikel.map(a=>{
     const kadaluarsa = new Date(a.tgl_expired) < new Date();
+    let thumb = 'https://placehold.co/400x200';
+    if(a.gambar_link && a.gambar_link.trim()!= ''){
+      thumb = a.gambar_link.split(',')[0].trim();
+    }
+
     if(kadaluarsa){
-      return `<div onclick="bukaModal(${a.id})" class="p-3 bg-gray-100 rounded-lg border-l-4 border-orange-400 cursor-pointer hover:bg-gray-200 transition" data-aos="fade-up">
-        <span class="font-bold text-gray-600 text-sm">📦 ${a.judul}</span>
-        <p class="text-[10px] text-gray-500">Arsip - ${new Date(a.tanggal).toLocaleDateString('id-ID')} - Klik untuk baca</p>
+      return `<div onclick="bukaModal(${a.id})" class="p-2 bg-gray-100 rounded-lg border-l-4 border-orange-400 cursor-pointer hover:bg-gray-200 transition" data-aos="fade-up">
+        <span class="font-bold text-gray-600 text-xs">📦 ${a.judul}</span>
+        <p class="text-[9px] text-gray-500">Arsip - ${new Date(a.tanggal).toLocaleDateString('id-ID')} - Klik untuk baca</p>
       </div>`
     } else {
       return `<div onclick="bukaModal(${a.id})" class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition cursor-pointer" data-aos="zoom-in">
-        <img src="${a.gambar_link}" onerror="this.src='https://placehold.co/400x200'" class="w-full h-40 object-cover">
-        <div class="p-3">
-          <p class="text-[10px] text-gray-500">${new Date(a.tanggal).toLocaleDateString('id-ID')}</p>
-          <h3 class="font-bold text-base mb-1 text-blue-900">${a.judul}</h3>
-          <p class="text-sm text-gray-600 mb-2">${a.isi.substring(0,90)}...</p>
-          <p class="text-xs font-bold text-red-500">❤️ ${likeCount[a.id] || 0} Suka</p>
+        <img src="${thumb}" onerror="this.src='https://placehold.co/400x200'" class="w-full h-32 object-cover">
+        <div class="p-2">
+          <p class="text-[9px] text-gray-500">${new Date(a.tanggal).toLocaleDateString('id-ID')}</p>
+          <h3 class="font-bold text-sm mb-1 text-blue-900">${a.judul}</h3>
+          <p class="text-xs text-gray-600 mb-2">${a.isi.substring(0,80)}...</p>
+          <p class="text-[10px] font-bold text-red-500">❤️ ${likeCount[a.id] || 0} Suka</p>
         </div>
       </div>`
     }
-  }).join('') : "<p class='col-span-full text-center text-gray-500 text-sm'>Belum ada artikel</p>";
+  }).join('') : "<p class='col-span-full text-center text-gray-500 text-xs'>Belum ada artikel</p>";
 }
 
 document.getElementById('searchArtikel').addEventListener('input', (e)=>loadArtikel(e.target.value));
 
 async function loadAnggota(wilayah){
-  btnWetan.className = btnKulon.className = "px-4 py-2 text-sm rounded-lg font-bold bg-gray-200 text-gray-700 hover:bg-gray-300";
-  if(wilayah=="Belandongan Wetan")btnWetan.className="px-4 py-2 text-sm rounded-lg font-bold bg-blue-700 text-white";
-  if(wilayah=="Belandongan Kulon")btnKulon.className="px-4 py-2 text-sm rounded-lg font-bold bg-blue-700 text-white";
-  const {data} = await supabaseClient.from('anggota').select('*').eq('wilayah',wilayah).order('nama');
-  anggotaList.innerHTML = data && data.length > 0? data.map(a=>`<div class="bg-gray-100 p-3 rounded-lg border-l-4 border-blue-600"><p class="font-bold text-sm">${a.nama}</p><p class="text-xs">${a.alamat}</p><p class="text-[10px] text-blue-700 mt-1">🚤 ${a.kapal}</p></div>`).join('') : "<p class='text-center col-span-full text-gray-500 text-sm'>Belum ada data anggota</p>";
+  btnWetan.className = btnKulon.className = "px-3 py-1.5 text-xs rounded-lg font-bold bg-gray-200 text-gray-700 hover:bg-gray-300";
+  if(wilayah=="Belandongan Wetan")btnWetan.className="px-3 py-1.5 text-xs rounded-lg font-bold bg-blue-700 text-white";
+  if(wilayah=="Belandongan Kulon")btnKulon.className="px-3 py-1.5 text-xs rounded-lg font-bold bg-blue-700 text-white";
+  const {data} = await supabaseClient.from('anggota').select('*').eq('wilayah',wilayah).order('nama').limit(10);
+  anggotaList.innerHTML = data && data.length > 0? data.map(a=>`<div class="bg-gray-100 p-2 rounded-lg border-l-2 border-blue-600"><p class="font-bold text-xs">${a.nama}</p><p class="text-[10px]">${a.alamat}</p><p class="text-[9px] text-blue-700 mt-1">🚤 ${a.kapal}</p></div>`).join('') : "<p class='text-center col-span-full text-gray-500 text-xs'>Belum ada data anggota</p>";
 }
 
-// FUNGSI SLIDER
+// FUNGSI SLIDER GAMBAR
 function gantiGambar(arah){
   gambarIndex += arah;
   if(gambarIndex < 0) gambarIndex = gambarList.length - 1;
@@ -196,18 +229,39 @@ function gantiGambar(arah){
   indikatorGambar.innerText = `${gambarIndex + 1} / ${gambarList.length}`;
 }
 
+// FUNGSI SLIDER VIDEO BARU
+function getYoutubeID(url){
+  let videoId = '';
+  if(url.includes('shorts/')){
+      videoId = url.split('shorts/')[1].split('?')[0];
+  } else if(url.includes('youtu.be/')){
+      videoId = url.split('youtu.be/')[1].split('?')[0];
+  } else {
+      videoId = url.split('v=')[1].split('&')[0];
+  }
+  return videoId;
+}
+
+function gantiVideo(arah){
+  videoIndex += arah;
+  if(videoIndex < 0) videoIndex = videoList.length - 1;
+  if(videoIndex >= videoList.length) videoIndex = 0;
+  let videoId = getYoutubeID(videoList[videoIndex]);
+  modalVideo.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" class="w-full h-44 md:h-80 rounded-lg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+  indikatorVideo.innerText = `${videoIndex + 1} / ${videoList.length}`;
+}
+
 async function bukaModal(id){
   const {data, error} = await supabaseClient.from('artikel').select('*').eq('id',id).single();
   if(error){ alert("Gagal load artikel: " + error.message); return; }
   artikelAktif = data;
   modalJudul.innerText = data.judul;
 
-  // LOGIKA GAMBAR BANYAK: PISAH KAN MAU KANTOI ','
+  // LOAD GAMBAR BANYAK
   gambarList = [];
   if(data.gambar_link){
     gambarList = data.gambar_link.split(',').map(s=>s.trim()).filter(s=>s);
   }
-
   if(gambarList.length > 0){
     modalGambarContainer.classList.remove('hidden');
     gambarIndex = 0;
@@ -219,37 +273,67 @@ async function bukaModal(id){
     modalGambarContainer.classList.add('hidden');
   }
 
+  // LOAD VIDEO BANYAK BARU
+  videoList = [];
+  if(data.video_link){
+    videoList = data.video_link.split(',').map(s=>s.trim()).filter(s=>s);
+  }
+  if(videoList.length > 0){
+    modalVideoContainer.classList.remove('hidden');
+    videoIndex = 0;
+    let videoId = getYoutubeID(videoList[0]);
+    modalVideo.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" class="w-full h-44 md:h-80 rounded-lg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    indikatorVideo.innerText = `1 / ${videoList.length}`;
+    prevVideo.classList.toggle('hidden', videoList.length <= 1);
+    nextVideo.classList.toggle('hidden', videoList.length <= 1);
+  } else {
+    modalVideoContainer.classList.add('hidden');
+  }
+
   modalTanggal.innerText = new Date(data.tanggal).toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
   modalIsi.innerText = data.isi;
-
-  if(data.video_link){
-    let videoId = '';
-    if(data.video_link.includes('shorts/')){
-        videoId = data.video_link.split('shorts/')[1].split('?')[0];
-    } else if(data.video_link.includes('youtu.be/')){
-        videoId = data.video_link.split('youtu.be/')[1].split('?')[0];
-    } else {
-        videoId = data.video_link.split('v=')[1].split('&')[0];
-    }
-    modalVideo.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" class="w-full h-52 md:h-96 rounded-lg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-  } else {
-    modalVideo.innerHTML = '';
-  }
 
   modalArtikel.classList.remove('hidden'); modalArtikel.classList.add('flex');
   loadLike(); loadKomentar();
 }
 function tutupModal(){ modalArtikel.classList.add('hidden'); modalArtikel.classList.remove('flex'); }
 
+async function bukaModalSemuaPengurus(){
+  const {data:pengurus, error} = await supabaseClient.from('pengurus').select('*').order('id');
+  if(error){ alert("Gagal load: " + error.message); return; }
+  semuaPengurusList.innerHTML = pengurus && pengurus.length > 0? pengurus.map(p=>`<div class="flex justify-between items-center p-2 bg-gray-50 hover:bg-blue-50 rounded-lg border-l-2 border-blue-600 transition"><div><p class="font-bold text-xs text-blue-900">${p.nama}</p><p class="text-[10px] text-gray-600">${p.jabatan}</p></div></div>`).join('') : "<p class='text-xs text-center text-gray-500'>Belum ada data</p>";
+  modalSemuaPengurus.classList.remove('hidden'); modalSemuaPengurus.classList.add('flex');
+}
+function tutupModalSemuaPengurus(){
+  modalSemuaPengurus.classList.add('hidden'); modalSemuaPengurus.classList.remove('flex');
+}
+
+async function bukaModalSemuaAnggota(){
+  modalSemuaAnggota.classList.remove('hidden'); modalSemuaAnggota.classList.add('flex');
+  loadSemuaAnggota('Belandongan Wetan');
+}
+function tutupModalSemuaAnggota(){
+  modalSemuaAnggota.classList.add('hidden'); modalSemuaAnggota.classList.remove('flex');
+}
+
+async function loadSemuaAnggota(wilayah){
+  tabModalWetan.className = tabModalKulon.className = "px-4 py-2 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-blue-600";
+  if(wilayah=="Belandongan Wetan")tabModalWetan.className="px-4 py-2 text-xs font-bold border-b-2 border-blue-700 text-blue-700";
+  if(wilayah=="Belandongan Kulon")tabModalKulon.className="px-4 py-2 text-xs font-bold border-b-2 border-blue-700 text-blue-700";
+  const {data:anggota, error} = await supabaseClient.from('anggota').select('*').eq('wilayah',wilayah).order('nama');
+  if(error){ alert("Gagal load: " + error.message); return; }
+  semuaAnggotaList.innerHTML = anggota && anggota.length > 0? anggota.map(a=>`<div class="bg-gray-100 p-2 rounded-lg border-l-2 border-blue-600"><p class="font-bold text-xs">${a.nama}</p><p class="text-[10px]">${a.alamat}</p><p class="text-[9px] text-gray-500">${a.wilayah}</p><p class="text-[9px] text-blue-700 mt-1">🚤 ${a.kapal}</p></div>`).join('') : "<p class='text-center col-span-full text-gray-500 text-xs'>Belum ada data anggota</p>";
+}
+
 async function loadLike(){
   const {data, error} = await supabaseClient.from('likes').select('*').eq('artikel_id',artikelAktif.id);
   if(!error) jmlLike.innerText = data.length;
   const key = 'liked_'+artikelAktif.id;
   if(localStorage.getItem(key)){
-    btnLike.className = "flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg bg-red-500 text-white cursor-not-allowed";
+    btnLike.className = "flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg bg-red-500 text-white cursor-not-allowed";
     btnLike.disabled = true;
   } else {
-    btnLike.className = "flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200";
+    btnLike.className = "flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg bg-red-100 text-red-600 hover:bg-red-200";
     btnLike.disabled = false;
   }
 }
@@ -265,10 +349,10 @@ async function likeArtikel(){
 }
 
 async function loadKomentar(){
-  listKomentar.innerHTML = "<p class='text-xs text-gray-400'>Loading komentar...</p>";
+  listKomentar.innerHTML = "<p class='text-[10px] text-gray-400'>Loading komentar...</p>";
   const {data, error} = await supabaseClient.from('komentar').select('*').eq('artikel_id',artikelAktif.id).order('tanggal',{ascending:false});
-  if(error){ listKomentar.innerHTML = `<p class='text-xs text-red-500'>Gagal load: ${error.message}</p>`; return; }
-  listKomentar.innerHTML = data && data.length > 0? data.map(k=>`<div class="bg-gray-100 p-2 rounded-lg"><p class="font-bold text-xs text-blue-800">${k.nama}</p><p class="text-sm">${k.komentar}</p><p class="text-[10px] text-gray-400">${new Date(k.tanggal).toLocaleString('id-ID')}</p></div>`).join('') : "<p class='text-xs text-gray-500'>Belum ada komentar</p>";
+  if(error){ listKomentar.innerHTML = `<p class='text-[10px] text-red-500'>Gagal load: ${error.message}</p>`; return; }
+  listKomentar.innerHTML = data && data.length > 0? data.map(k=>`<div class="bg-gray-100 p-1.5 rounded-lg"><p class="font-bold text-[10px] text-blue-800">${k.nama}</p><p class="text-xs">${k.komentar}</p><p class="text-[9px] text-gray-400">${new Date(k.tanggal).toLocaleString('id-ID')}</p></div>`).join('') : "<p class='text-[10px] text-gray-500'>Belum ada komentar</p>";
 }
 async function kirimKomentar(){
   if(!namaKomen.value.trim() ||!isiKomen.value.trim()) return alert('Nama dan komentar wajib diisi');
