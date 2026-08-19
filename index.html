@@ -5,7 +5,7 @@
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <style>
   body { font-size: 12px; }
-  @media (min-width: 768px) { body { font-size: 13px; }
+  @media (min-width: 768px) { body { font-size: 13px; } }
   #artikelList { max-height: 70vh; overflow-y: auto; }
   #artikelList::-webkit-scrollbar { width: 6px; }
   #artikelList::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 10px; }
@@ -32,6 +32,38 @@
 
 <main class="max-w-6xl mx-auto p-3">
   <section id="sambutan" class="bg-white p-3 rounded-xl shadow-lg my-4 border-l-4 border-blue-700" data-aos="fade-up"></section>
+
+  <!-- WIDGET CUACA LAUT PANCENG BARU -->
+  <section class="bg-gradient-to-r from-cyan-600 to-blue-800 p-3 rounded-xl shadow-lg my-5 text-white" data-aos="fade-up">
+    <h3 class="text-base md:text-lg font-bold mb-2 flex items-center gap-2">🌊 Info Cuaca Laut Panceng</h3>
+    <div id="loadingCuaca" class="text-center text-xs">Loading data cuaca...</div>
+
+    <div id="cuacaContent" class="hidden grid-cols-2 md:grid-cols-4 gap-2 text-center">
+      <div class="bg-white/20 p-2 rounded-lg">
+        <p class="text-[9px] opacity-80">Tinggi Gelombang</p>
+        <p id="gelombang" class="text-lg font-bold">- m</p>
+      </div>
+      <div class="bg-white/20 p-2 rounded-lg">
+        <p class="text-[9px] opacity-80">Kecepatan Angin</p>
+        <p id="angin" class="text-lg font-bold">- km/j</p>
+      </div>
+      <div class="bg-white/20 p-2 rounded-lg">
+        <p class="text-[9px] opacity-80">Suhu Permukaan Laut</p>
+        <p id="suhuLaut" class="text-lg font-bold">- °C</p>
+      </div>
+      <div class="bg-white/20 p-2 rounded-lg">
+        <p class="text-[9px] opacity-80">Kondisi</p>
+        <p id="kondisi" class="text-sm font-bold">-</p>
+      </div>
+    </div>
+
+    <!-- PRAKIRAAN 7 HARI -->
+    <h4 class="text-sm font-bold mt-3 mb-2">📅 Prakiraan 7 Hari Kedepan</h4>
+    <div id="prakiraan7hari" class="grid grid-cols-4 md:grid-cols-7 gap-1.5">
+      <div class="col-span-full text-center text-[10px]">Loading prakiraan...</div>
+    </div>
+    <p class="text-[9px] text-center mt-2 opacity-70">Update: <span id="updateCuaca">-</span> | Sumber: BMKG & Open-Meteo</p>
+  </section>
 
   <div class="my-3 flex gap-2" data-aos="fade-up">
     <input type="text" id="searchArtikel" placeholder="🔍 Cari berita..." class="flex-1 p-2 text-xs border-2 border-gray-200 rounded-lg focus:border-blue-500 outline-none">
@@ -75,7 +107,7 @@
       <h3 id="modalJudul" class="text-base md:text-xl font-bold text-blue-900 pr-8"></h3>
       <button onclick="tutupModal()" class="text-2xl text-gray-500 hover:text-red-500 absolute right-3 top-2">×</button>
     </div>
-    
+
     <!-- SLIDER GAMBAR -->
     <div id="modalGambarContainer" class="relative w-full bg-black hidden">
       <img id="modalGambar" src="" class="w-full h-[40vh] md:h-[60vh] object-contain bg-black">
@@ -145,8 +177,8 @@ let artikelAktif = null;
 let tampilkanArsip = false;
 let gambarList = [];
 let gambarIndex = 0;
-let videoList = []; // BARU
-let videoIndex = 0; // BARU
+let videoList = [];
+let videoIndex = 0;
 
 function togglePengurus(){
   const wrapper = document.getElementById('pengurusWrapper');
@@ -169,6 +201,7 @@ async function loadAll(){
   const {data:pengurus, error:errPengurus} = await supabaseClient.from('pengurus').select('*').order('id').limit(10);
   if(!errPengurus){ pengurusList.innerHTML = pengurus && pengurus.length > 0? pengurus.map(p=>`<div class="flex justify-between items-center p-2 bg-gray-50 hover:bg-blue-50 rounded-lg border-l-2 border-blue-600 transition"><div><p class="font-bold text-xs text-blue-900">${p.nama}</p><p class="text-[10px] text-gray-600">${p.jabatan}</p></div></div>`).join('') : "<p class='text-xs text-center text-gray-500'>Belum ada data</p>"; }
   loadAnggota('Belandongan Wetan');
+  loadCuacaLaut(); // PANGGIL CUACA
 }
 
 async function loadArtikel(cari=""){
@@ -229,7 +262,7 @@ function gantiGambar(arah){
   indikatorGambar.innerText = `${gambarIndex + 1} / ${gambarList.length}`;
 }
 
-// FUNGSI SLIDER VIDEO BARU
+// FUNGSI SLIDER VIDEO
 function getYoutubeID(url){
   let videoId = '';
   if(url.includes('shorts/')){
@@ -251,13 +284,77 @@ function gantiVideo(arah){
   indikatorVideo.innerText = `${videoIndex + 1} / ${videoList.length}`;
 }
 
+// FUNGSI CUACA LAUT + PRAKIRAAN 7 HARI BARU
+async function loadCuacaLaut(){
+  const lat = -6.95;
+  const lon = 112.48;
+
+  try {
+    const urlNow = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,wind_speed_10m,sea_surface_temperature`;
+    const resNow = await fetch(urlNow);
+    const dataNow = await resNow.json();
+
+    const urlCuacaNow = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=weather_code`;
+    const resCuacaNow = await fetch(urlCuacaNow);
+    const dataCuacaNow = await resCuacaNow.json();
+
+    document.getElementById('gelombang').innerText = dataNow.current.wave_height.toFixed(1) + ' m';
+    document.getElementById('angin').innerText = dataNow.current.wind_speed_10m.toFixed(0) + ' km/j';
+    document.getElementById('suhuLaut').innerText = dataNow.current.sea_surface_temperature.toFixed(1) + ' °C';
+    document.getElementById('kondisi').innerText = getWeatherDescription(dataCuacaNow.current.weather_code);
+    document.getElementById('updateCuaca').innerText = new Date().toLocaleTimeString('id-ID');
+    document.getElementById('loadingCuaca').classList.add('hidden');
+    document.getElementById('cuacaContent').classList.remove('hidden');
+
+    const urlForecast = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&daily=wave_height_max,wind_speed_10m_max&timezone=Asia%2FJakarta`;
+    const resForecast = await fetch(urlForecast);
+    const dataForecast = await resForecast.json();
+
+    const container = document.getElementById('prakiraan7hari');
+    container.innerHTML = '';
+
+    dataForecast.daily.time.forEach((tanggal, i) => {
+      const gelombang = dataForecast.daily.wave_height_max[i];
+      const angin = dataForecast.daily.wind_speed_10m_max[i];
+
+      let warna = 'bg-white/20';
+      let status = 'Aman';
+      if(gelombang > 2.5){ warna = 'bg-red-500/50'; status = 'Bahaya'; }
+      else if(gelombang > 1.5){ warna = 'bg-orange-500/50'; status = 'Waspada'; }
+
+      container.innerHTML += `
+        <div class="${warna} p-1.5 rounded-lg text-center">
+          <p class="text-[9px] font-bold">${new Date(tanggal).toLocaleDateString('id-ID', {weekday: 'short'})}</p>
+          <p class="text-[9px]">${new Date(tanggal).getDate()}</p>
+          <p class="text-xs font-bold mt-1">${gelombang.toFixed(1)}m</p>
+          <p class="text-[8px]">${angin.toFixed(0)}km/j</p>
+          <p class="text-[8px] font-bold mt-1">${status}</p>
+        </div>
+      `;
+    });
+
+  } catch (error) {
+    document.getElementById('loadingCuaca').innerText = 'Gagal memuat data cuaca';
+    console.error("Error cuaca:", error);
+  }
+}
+
+function getWeatherDescription(code){
+  const codes = {
+    0: 'Cerah', 1: 'Cerah Berawan', 2: 'Berawan', 3: 'Mendung',
+    45: 'Kabut', 48: 'Kabut Es', 51: 'Gerimis', 53: 'Gerimis', 55: 'Gerimis Lebat',
+    61: 'Hujan Ringan', 63: 'Hujan', 65: 'Hujan Lebat', 80: 'Hujan Lokal',
+    95: 'Badai Petir', 96: 'Badai Es', 99: 'Badai Es'
+  };
+  return codes[code] || '-';
+}
+
 async function bukaModal(id){
   const {data, error} = await supabaseClient.from('artikel').select('*').eq('id',id).single();
   if(error){ alert("Gagal load artikel: " + error.message); return; }
   artikelAktif = data;
   modalJudul.innerText = data.judul;
 
-  // LOAD GAMBAR BANYAK
   gambarList = [];
   if(data.gambar_link){
     gambarList = data.gambar_link.split(',').map(s=>s.trim()).filter(s=>s);
@@ -273,7 +370,6 @@ async function bukaModal(id){
     modalGambarContainer.classList.add('hidden');
   }
 
-  // LOAD VIDEO BANYAK BARU
   videoList = [];
   if(data.video_link){
     videoList = data.video_link.split(',').map(s=>s.trim()).filter(s=>s);
@@ -362,4 +458,7 @@ async function kirimKomentar(){
 }
 
 loadAll();
+
+// AUTO REFRESH CUACA TIAP 1 JAM
+setInterval(loadCuacaLaut, 1000 * 60 * 60);
 </script></body></html>
